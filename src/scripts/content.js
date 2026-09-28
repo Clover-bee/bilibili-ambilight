@@ -5,14 +5,10 @@ import {
   setWarning,
   wrapErrorHandler,
 } from './libs/generic';
-import { defaultCrashOptions, storage } from './libs/storage';
-import SentryReporter, {
-  setCrashOptions,
-  setVersion,
-} from './libs/errors/sentry-reporter';
+import ErrorReporter from './libs/errors/reporter';
 import { injectedScript } from './libs/messaging/injected';
 
-setErrorHandler((ex) => SentryReporter.captureException(ex));
+setErrorHandler((ex) => ErrorReporter.captureException(ex));
 
 injectedScript.addMessageListener('error', (injectedEx) => {
   const ex = new Error(injectedEx.message);
@@ -20,19 +16,19 @@ injectedScript.addMessageListener('error', (injectedEx) => {
   ex.stack = injectedEx.stack;
   if (injectedEx.details) ex.details = injectedEx.details;
 
-  SentryReporter.captureException(ex);
+  ErrorReporter.captureException(ex);
 });
 
 const setResourceWarning = (url) => {
   setWarning(
     url
-      ? `Failed to load a resource. Reload the webpage to try it again. 
-This can happen after you have updated the extension. 
+      ? `無法載入資源，請重新整理網頁再試一次。
+更新擴充功能後可能會發生這種情況。
 
-Or if this happens often, view the error in your browser's DevTools javascript console panel. 
-Tip: Look for errors about this url: ${url}`
-      : `Failed to load the extension on this webpage because it has been updated, reloaded or uninstalled. 
-Reload the webpage to reload the extension.`
+如果經常發生，可以在瀏覽器開發人員工具的 Console 面板查看錯誤。
+提示：搜尋與這個網址有關的錯誤：${url}`
+      : `擴充功能已經更新、重新載入或解除安裝，無法在這個網頁上載入。
+請重新整理網頁來重新載入擴充功能。`
   );
 };
 
@@ -125,7 +121,7 @@ const captureResourceLoadingException = async (url, event) => {
   } finally {
     if (error) {
       error.details = event;
-      SentryReporter.captureException(error);
+      ErrorReporter.captureException(error);
     }
 
     setResourceWarning(url);
@@ -134,22 +130,6 @@ const captureResourceLoadingException = async (url, event) => {
 
 wrapErrorHandler(async function loadContentScript() {
   const version = getVersion();
-  setVersion(version);
-
-  let crashOptions = defaultCrashOptions;
-  try {
-    crashOptions = (await storage.get('crashOptions')) || defaultCrashOptions;
-    setCrashOptions(crashOptions);
-  } catch (ex) {
-    SentryReporter.captureException(ex);
-  }
-
-  storage.addListener(function storageListener(changes) {
-    if (!changes.crashOptions?.newValue) return;
-
-    const crashOptions = changes.crashOptions.newValue;
-    setCrashOptions(crashOptions);
-  });
 
   await waitForHtmlElement();
   await waitForHeadElement();
@@ -224,7 +204,6 @@ wrapErrorHandler(async function loadContentScript() {
     const script = document.createElement('script');
     script.src = url;
     script.async = true;
-    script.setAttribute('data-crash-options', JSON.stringify(crashOptions));
     script.setAttribute('data-version', version);
     script.addEventListener(
       'error',

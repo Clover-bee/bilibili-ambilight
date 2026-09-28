@@ -1,102 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant-TW">
 <head>
   <meta charset="utf-8" />
-  <title>Ambient light for YouTube&trade; settings</title>
+  <title>Bilibili 環境光設定</title>
   <link rel="stylesheet" href="styles/options.css">
 </head>
 
 <body>
   <main>
-    <h1>Ambient light for YouTube&trade;</h1>
+    <h1>Bilibili 環境光</h1>
     <p>
-      The settings are accessible from video player:<br/><br/>
-      <img src="images/settings-moved-to.png" />
-    </p>
-    
-    <h2>I see no settings button</h2>
-    <p>
-      Please refresh the webpage in the browser.<br/><br/>
-      <i>If after the refresh the settings button is still not shown you can open your browser's console (Press F12) to search for any errors or warnings and report those by:<br/>
-      <a href="https://github.com/WesselKroos/youtube-ambilight/issues" target="_blank">creating an issue</a>
-      or 
-      <a id="feedbackFormLink" href="https://docs.google.com/forms/d/1OU7e3fOXk2NJSppCj4hrAE0lUgi8utccdooX1rUnycU" target="_blank">filling out the feedback form</a>
-      </i>
-    </p>
-    <h2>Fix performance issues</h2>
-    <p>
-      Follow the <a href="https://github.com/WesselKroos/youtube-ambilight/blob/master/TROUBLESHOOT.md" target="_blank">troubelshoot guide</a> to resolve performance issue
+      設定選單在影片播放器裡：<br/>
+      點擊 Bilibili 播放器右下角控制列中，設定（齒輪）按鈕左邊的環境光按鈕。
     </p>
 
-    <h2>Support me</h2>
+    <h2>找不到設定按鈕</h2>
     <p>
-      <a class="donate-link" href="https://ko-fi.com/G2G59EK8L" target="_blank" rel="noopener">
-        <img src="images/donate.svg" alt="Support me via a donation" title="Support me via a donation" height="33" />
-      </a>
+      請重新整理瀏覽器中的網頁。<br/><br/>
+      <i>如果重新整理後還是沒有出現設定按鈕，可以開啟瀏覽器的 Console（按 F12），搜尋以「Bilibili 環境光」開頭的錯誤或警告。</i>
+    </p>
+    <h2>排解效能問題</h2>
+    <p>
+      請參考原版擴充功能的<a id="troubleshootLink" href="#" target="_blank" rel="noopener">疑難排解指南</a>（英文）來解決效能問題。
     </p>
 
-    <h2>Import / Export settings</h2>
+    <h2>匯入／匯出設定</h2>
     <div id="importExportStatus" class="import-export-status"></div>
     <div id="importExportStatusDetails" class="import-export-status-details" tabindex="0"></div>
-    <h3>File storage</h3>
+    <h3>檔案</h3>
     <p>
-      <button id="exportFileBtn">Export to file</button>
-      <button id="importFileBtn">Import from file</button>
+      <button id="exportFileBtn">匯出成檔案</button>
+      <button id="importFileBtn">從檔案匯入</button>
       <input hidden name="import-settings-file" type="file" accept=".json"/>
     </p>
-    <h3>Cloud storage (Your browser account)</h3>
+    <h3>雲端儲存空間（你的瀏覽器帳號）</h3>
     <p>
-      <button id="exportAccountBtn">Export to cloud</button>
-      <button id="importAccountBtn" disabled>Import from cloud</button>
+      <button id="exportAccountBtn">匯出到雲端</button>
+      <button id="importAccountBtn" disabled>從雲端匯入</button>
     </p>
     <p>
       <div id="importableAccountStatus" class="importable-account-status"></div>
     </p>
 
-    <h2>Crash reports & Privacy</h2>
+    <h2>隱私</h2>
     <p>
-      A crash report contains only anonymous data and will be deleted after 30 days.
-      However, anonymous data is still your data. That's why you can control what it contains via the settings below.<br/>
+      這個擴充功能不會傳送任何資料到任何地方。錯誤只會記錄在網頁的 Console 中。
     </p>
 
-    <div class="warnings-container"></div>
-
-    <h3>A crash report is allowed to contain:</h3>
-    <ul>
-      <li>
-        <div class="option">
-          <input type="checkbox" name="video"/>
-          <label>The url and video ID being watched at the time of the crash</label>
-        </div>
-      </li>
-      <li>
-        <div class="option">
-          <input type="checkbox" name="technical"/>
-          <div class="expandable">
-            <div class="expandable__title">
-              <label>Anonymous technical data</label>
-              <button class="expandable__toggle" title="Display the list of technical info">&gt;</button>
-            </div>
-            <ul class="expandable__details">
-              <li>Browser version</li>
-              <li>Operating system version</li>
-              <li>Display capabilities</li>
-              <li>Videoplayer state <i>(Does not contain the video id or title)</i></li>
-              <li>YouTube layout state <i>(Does not contain your YouTube account data)</i></li>
-            </ul>
-          </div>
-        </div>
-      </li>
-      <li>
-        <div class="option">
-          <input type="checkbox" name="crash"/>
-          <label>Ambient light state and error information</label>
-        </div>
-      </li>
-    </ul>
+    <h2>致謝</h2>
     <p>
-      No crash reports will be sent when all checkboxes are unchecked.<br/>
-      <a id="privacyPolicyLink" href="#" target="_blank">Our privacy policy</a>
+      改編自 Wessel Kroos 的 <a id="originalProjectLink" href="#" target="_blank" rel="noopener">Ambient light for YouTube&trade;</a>（MIT 授權）。<br/>
+      原始碼：<a href="https://github.com/iceorange-dev/bilibili-ambilight" target="_blank" rel="noopener">github.com/iceorange-dev/bilibili-ambilight</a>
+    </p>
+    <p>
+      本擴充功能為非官方作品，與嗶哩嗶哩（Bilibili）及 YouTube 無關。
     </p>
   </main>
   <script src="scripts/options.js"></script>

@@ -35,7 +35,7 @@ export default class Projector2d {
     }
 
     this.settings.setWarning(
-      `Failed to restore the renderer from a GPU crash.${canvas2DCrashTips}`
+      `GPU 當機後無法恢復渲染器。${canvas2DCrashTips}`
     );
   };
 
@@ -44,7 +44,7 @@ export default class Projector2d {
       console.error('Projector2D context restore failed 3 times');
 
       this.settings.setWarning(
-        `Failed to restore 3 times the renderer from a GPU crash.${canvas2DCrashTips}`
+        `GPU 當機後已嘗試 3 次，仍無法恢復渲染器。${canvas2DCrashTips}`
       );
       return;
     }

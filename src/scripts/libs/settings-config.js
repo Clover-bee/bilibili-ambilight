@@ -4,37 +4,37 @@ import { getBrowser } from './utils';
 const SettingsConfig = [
   {
     type: 'section',
-    label: 'Settings',
+    label: '設定',
     name: 'sectionSettingsCollapsed',
     default: true,
   },
   {
     name: 'advancedSettings',
-    label: 'Advanced',
+    label: '顯示進階設定',
     type: 'checkbox',
     default: false,
   },
   {
     type: 'section',
-    label: 'Stats',
+    label: '統計資訊',
     name: 'sectionStatsCollapsed',
     default: true,
     advanced: true,
   },
   {
     name: 'showFPS',
-    label: 'Framerates',
+    label: '影格率',
     type: 'checkbox',
     default: false,
     advanced: true,
   },
   {
     name: 'showFrametimes',
-    label: 'Frametimes graph',
-    description: 'Uses: CPU power',
+    label: '影格時間圖表',
+    description: '會使用：CPU 效能',
     questionMark: {
       title:
-        'The measured display framerate is not a reflection of the real performance.\nBecause the measurement uses an extra percentage of CPU usage.\nHowever, this statistic could be helpful to debug other issues.',
+        '測得的顯示器影格率並不代表實際效能，\n因為測量本身會額外佔用一部分 CPU。\n不過這項統計可以用來排查其他問題。',
     },
     type: 'checkbox',
     default: false,
@@ -42,34 +42,34 @@ const SettingsConfig = [
   },
   {
     name: 'showResolutions',
-    label: 'Resolutions & drawtimes',
+    label: '解析度與繪製時間',
     type: 'checkbox',
     default: false,
     advanced: true,
   },
   {
     name: 'showBarDetectionStats',
-    label: 'Bar detection',
+    label: '黑邊偵測',
     type: 'checkbox',
     default: false,
     advanced: true,
   },
   {
     type: 'section',
-    label: 'Quality',
+    label: '品質與效能',
     name: 'sectionQualityPerformanceCollapsed',
     default: true,
   },
   {
     name: 'webGL',
-    label: 'WebGL renderer (uses less power)',
-    description: 'Changing this reloads the webpage',
+    label: 'WebGL 渲染器（較省電）',
+    description: '變更後會重新載入網頁',
     type: 'checkbox',
     default: true,
   },
   {
     name: 'resolution',
-    label: 'Resolution',
+    label: '解析度',
     type: 'list',
     default: 100,
     unit: '%',
@@ -84,7 +84,7 @@ const SettingsConfig = [
   },
   {
     name: 'framerateLimit',
-    label: 'Limit framerate (per second)',
+    label: '影格率上限（每秒）',
     type: 'list',
     default: 60,
     min: 0,
@@ -93,10 +93,10 @@ const SettingsConfig = [
   },
   {
     name: 'frameSync',
-    label: 'Synchronization',
+    label: '同步方式',
     questionMark: {
       title:
-        'How much energy will be spent on sychronising ambient light frames with video frames.\n\nDecoded framerate: Lowest CPU & GPU usage.\nMight result in dropped and delayed frames.\n\nDisplay framerate: Highest CPU & GPU usage.\nMight still result in delayed frames on high refreshrate monitors (120hz and higher) and higher than 1080p videos.\n\nVideo framerate: Lowest CPU & GPU usage.\nUses the newest browser technology to always keep the frames in sync.',
+        '要花多少資源讓環境光的影格與影片的影格同步。\n\n解碼影格率：CPU 與 GPU 使用量最低。\n可能會掉幀或延遲。\n\n顯示器影格率：CPU 與 GPU 使用量最高。\n在高更新率螢幕（120Hz 以上）或高於 1080p 的影片上仍可能延遲。\n\n影片影格率：CPU 與 GPU 使用量最低。\n使用最新的瀏覽器技術讓影格隨時保持同步。',
     },
     type: 'list',
     default: 2,
@@ -104,55 +104,27 @@ const SettingsConfig = [
     max: 2,
     step: 1,
     snapPoints: [
-      { value: 0, label: 'Decoded' },
-      { value: 1, label: 'Display' },
-      { value: 2, label: 'Video' },
+      { value: 0, label: '解碼' },
+      { value: 1, label: '顯示器' },
+      { value: 2, label: '影片' },
     ],
     manualinput: false,
     advanced: true,
     experimental: true,
   },
   {
-    name: 'energySaver',
-    label: 'Save energy on static videos',
-    questionMark: {
-      title:
-        'Limits the framerate on videos with an (almost) static image\n\nStill image: 1 frame per 5 seconds\nSmall movements: 1 frame per second',
-    },
-    type: 'checkbox',
-    default: false,
-    advanced: true,
-  },
-  {
     name: 'prioritizePageLoadSpeed',
-    label: 'Prioritize page load speed',
-    description: 'Loads the ambient light after the page has loaded',
+    label: '優先載入網頁',
+    description: '等網頁載入完成後再載入環境光',
     type: 'checkbox',
     default: true,
-  },
-  {
-    name: 'layoutPerformanceImprovements',
-    label: 'YouTube responsiveness fixes',
-    description: 'Improves the responsiveness of the webpage',
-    questionMark: {
-      title: `Some of the improvements on the /watch page include:
-- Faster webpage resizing and scrolling (Most noticeable after you've loaded in more than 100 comments)
-- Faster loadingtimes for comments and/or related videos
-- Smoother timeline scrubbing (Most noticeable after you've loaded in more than 100 comments or with a livestream chat window open)
-- Smoother livestream chat scrolling (and new messages will be appended quicker to the chat)
-- Smoother playlist scrolling (Most noticeable in a playlist with more than 25 videos)
-- Smoother dragging/re-ordering videos in a playlist (Most noticeable in a playlist with more than 25 videos)`,
-    },
-    type: 'checkbox',
-    default: true,
-    advanced: true,
   },
   {
     name: 'debandingBlendMode',
-    label: 'Optimize debanding for',
+    label: '去色帶最佳化對象',
     questionMark: {
       title:
-        "The normal blend mode is usefull to fix banding in dark colors on LCD's.\nBut on OLED's it's better to use the \"overlay\" blend mode to retain pure blacks.",
+        '一般混合模式適合修正 LCD 螢幕上暗色的色帶。\n但在 OLED 螢幕上，使用「疊加」混合模式可以保留純黑。',
     },
     type: 'list',
     default: 0,
@@ -160,22 +132,21 @@ const SettingsConfig = [
     max: 1,
     step: 1,
     snapPoints: [
-      { value: 0, label: 'LCD (normal)' },
-      { value: 1, label: 'OLED (overlay)' },
+      { value: 0, label: 'LCD（一般）' },
+      { value: 1, label: 'OLED（疊加）' },
     ],
     manualinput: false,
     advanced: true,
-    new: true,
   },
   {
     type: 'section',
-    label: 'Page header',
+    label: '頁首',
     name: 'sectionOtherPageHeaderCollapsed',
     default: true,
   },
   {
     name: 'headerShadowSize',
-    label: 'Shadows size',
+    label: '陰影大小',
     type: 'list',
     default: 0,
     min: 0,
@@ -184,7 +155,7 @@ const SettingsConfig = [
   },
   {
     name: 'headerShadowOpacity',
-    label: 'Shadows opacity',
+    label: '陰影不透明度',
     type: 'list',
     default: 30,
     min: 0,
@@ -193,7 +164,7 @@ const SettingsConfig = [
   },
   {
     name: 'headerImagesOpacity',
-    label: 'Images opacity',
+    label: '圖片不透明度',
     type: 'list',
     default: 100,
     min: 0,
@@ -202,8 +173,8 @@ const SettingsConfig = [
   },
   {
     name: 'headerFillOpacity',
-    label: 'Background opacity',
-    description: 'Only applies when scrolled down',
+    label: '背景不透明度',
+    description: '只在頁面往下捲動後套用',
     type: 'list',
     default: 100,
     min: -100,
@@ -214,13 +185,13 @@ const SettingsConfig = [
 
   {
     type: 'section',
-    label: 'Page content',
+    label: '頁面內容',
     name: 'sectionOtherPageContentCollapsed',
     default: true,
   },
   {
     name: 'surroundingContentShadowSize',
-    label: 'Shadows size',
+    label: '陰影大小',
     type: 'list',
     default: 15,
     min: 0,
@@ -229,7 +200,7 @@ const SettingsConfig = [
   },
   {
     name: 'surroundingContentShadowOpacity',
-    label: 'Shadows opacity',
+    label: '陰影不透明度',
     type: 'list',
     default: 30,
     min: 0,
@@ -238,15 +209,15 @@ const SettingsConfig = [
   },
   {
     name: 'surroundingContentTextAndBtnOnly',
-    label: 'Shadows on texts and buttons only',
-    description: 'Decreases scrolling & video stutter',
+    label: '只在文字與按鈕加上陰影',
+    description: '減少捲動與影片卡頓',
     type: 'checkbox',
     advanced: true,
     default: true,
   },
   {
     name: 'surroundingContentImagesOpacity',
-    label: 'Images opacity',
+    label: '圖片不透明度',
     type: 'list',
     default: 100,
     min: 0,
@@ -255,7 +226,7 @@ const SettingsConfig = [
   },
   {
     name: 'surroundingContentFillOpacity',
-    label: 'Buttons & boxes background opacity',
+    label: '按鈕與區塊背景不透明度',
     type: 'list',
     default: 10,
     min: -100,
@@ -264,7 +235,7 @@ const SettingsConfig = [
   },
   {
     name: 'pageBackgroundGreyness',
-    label: 'Background greyness',
+    label: '背景灰度',
     type: 'list',
     default: 0,
     min: 0,
@@ -272,65 +243,48 @@ const SettingsConfig = [
     step: 0.1,
   },
   {
-    name: 'immersiveTheaterView',
-    label: 'Hide everything in theater mode',
-    type: 'checkbox',
-    default: false,
-  },
-  {
-    name: 'relatedScrollbar',
-    label: 'Related videos as scrollable list',
-    description: 'Also improves scrolling through comments',
-    type: 'checkbox',
-    advanced: true,
-    default: false,
-  },
-  {
     name: 'hideScrollbar',
-    label: 'Hide scrollbar',
+    label: '隱藏捲軸',
     type: 'checkbox',
     advanced: true,
     default: false,
   },
   {
     type: 'section',
-    label: 'Video',
+    label: '影片',
     name: 'sectionVideoResizingCollapsed',
     default: true,
   },
   {
     name: 'videoScale.SMALL',
-    label: 'Size (in small view)',
+    label: '大小（一般模式）',
     type: 'list',
     default: 100,
     min: 25,
     max: 200,
     step: 0.1,
-    new: true,
   },
   {
     name: 'videoScale.THEATER',
-    label: 'Size (in theater view)',
+    label: '大小（寬螢幕模式）',
     type: 'list',
     default: 100,
     min: 25,
     max: 200,
     step: 0.1,
-    new: true,
   },
   {
     name: 'videoScale.FULLSCREEN',
-    label: 'Size (in fullscreen)',
+    label: '大小（全螢幕）',
     type: 'list',
     default: 100,
     min: 25,
     max: 200,
     step: 0.1,
-    new: true,
   },
   {
     name: 'videoShadowSize',
-    label: 'Shadow size',
+    label: '陰影大小',
     type: 'list',
     default: 0,
     min: 0,
@@ -339,7 +293,7 @@ const SettingsConfig = [
   },
   {
     name: 'videoShadowOpacity',
-    label: 'Shadow opacity',
+    label: '陰影不透明度',
     type: 'list',
     default: 50,
     min: 0,
@@ -348,10 +302,10 @@ const SettingsConfig = [
   },
   {
     name: 'videoDebandingStrength',
-    label: 'Debanding (noise)',
+    label: '去色帶（雜訊）',
     questionMark: {
       title:
-        'Click for more information about debanding (noise /dithering).\nTip: Change the "Quality > Optimize debanding for" setting to "OLED" to retain pure blacks on OLED displays.',
+        '點擊查看去色帶（雜訊／抖色）的說明。\n提示：在 OLED 螢幕上，把「品質與效能 > 去色帶最佳化對象」設為「OLED」可以保留純黑。',
       href: 'https://www.lifewire.com/what-is-dithering-4686105',
     },
     type: 'list',
@@ -363,10 +317,10 @@ const SettingsConfig = [
   },
   {
     name: 'videoOverlayEnabled',
-    label: 'Sync video with ambient light',
+    label: '讓影片與環境光同步',
     questionMark: {
       title:
-        'Delays the video frames according to the ambient light frametimes.\nThis makes sure that that the ambient light is never out of sync with the video,\nbut it can introduce stuttering and/or dropped frames.',
+        '依照環境光的影格時間延遲影片的影格，\n讓環境光永遠不會和影片不同步，\n但可能會造成卡頓或掉幀。',
     },
     type: 'checkbox',
     default: false,
@@ -374,8 +328,8 @@ const SettingsConfig = [
   },
   {
     name: 'videoOverlaySyncThreshold',
-    label: 'Sync video disable threshold',
-    description: 'Disable when dropping % of frames',
+    label: '停用影片同步的門檻',
+    description: '掉幀比例超過此值時停用',
     type: 'list',
     default: 5,
     min: 1,
@@ -385,11 +339,11 @@ const SettingsConfig = [
   },
   {
     name: 'chromiumBugVideoJitterWorkaround',
-    label: 'Video jitter workaround',
-    description: 'Uses: CPU & GPU power',
+    label: '影片抖動修正',
+    description: '會使用：CPU 與 GPU 效能',
     questionMark: {
       title:
-        'Chromium has a bug that jitters the video playback when your display \nhas a higher framerate than 60Hz. This workaround prevents the jittering \nby forcing the browser to run at the framerate of your display instead. \nClick the questionmark for more information about this bug in Chromium browsers.',
+        'Chromium 有個錯誤：螢幕更新率高於 60Hz 時，影片播放會抖動。\n此修正會強制瀏覽器以螢幕的更新率運作，避免抖動。\n點擊問號查看這個 Chromium 錯誤的詳細資訊。',
       href: 'https://github.com/WesselKroos/youtube-ambilight/issues/166',
     },
     type: 'checkbox',
@@ -398,15 +352,14 @@ const SettingsConfig = [
   },
   {
     name: 'chromiumDirectVideoOverlayWorkaround',
-    label: 'Video artifacts workaround',
+    label: '影片破圖修正',
     description:
-      'This workaround must be disabled for \nNVidia RTX Virtual Super Resolution (VSR)',
+      '使用 NVIDIA RTX Video Super Resolution (VSR)\n時必須關閉此修正',
     questionMark: {
-      title: `This workaround can fix several artifacts/bugs,
-when videos are in hardware accelerated overlays (MPO).
-Examples are: random black/white squares, flickering or a squeezed video.
+      title: `影片使用硬體加速疊加層（MPO）時，此修正可以解決一些破圖問題。
+例如：隨機出現的黑色／白色方塊、閃爍或影片被壓扁。
 
-Click on the questionmark for more and updated information about these artifacts/bugs.`,
+點擊問號查看這些問題的最新資訊。`,
       href: 'https://github.com/WesselKroos/youtube-ambilight/blob/master/TROUBLESHOOT.md#3-nvidia-rtx-video-super-resolution-vsr--nvidia-rtx-video-hdr-does-not-work',
     },
     type: 'checkbox',
@@ -415,35 +368,35 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     type: 'section',
-    label: 'Remove black & colored bars',
+    label: '移除黑邊與彩色邊',
     name: 'sectionHorizontalBarsCollapsed',
     default: true,
   },
   {
     name: 'detectHorizontalBarSizeEnabled',
-    label: 'Remove black bars',
-    description: 'Uses: CPU power',
+    label: '移除上下黑邊',
+    description: '會使用：CPU 效能',
     type: 'checkbox',
     default: false,
     defaultKey: 'B',
   },
   {
     name: 'detectVerticalBarSizeEnabled',
-    label: 'Remove black sidebars',
-    description: 'Uses: CPU power',
+    label: '移除左右黑邊',
+    description: '會使用：CPU 效能',
     type: 'checkbox',
     default: false,
     defaultKey: 'V',
   },
   {
     name: 'detectColoredHorizontalBarSizeEnabled',
-    label: 'Detection: Remove colored bars',
+    label: '偵測：也移除彩色邊',
     type: 'checkbox',
     default: false,
   },
   {
     name: 'detectHorizontalBarSizeOffsetPercentage',
-    label: 'Detection: Offset',
+    label: '偵測：偏移',
     type: 'list',
     default: 0,
     min: -5,
@@ -453,10 +406,10 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'barSizeDetectionAverageHistorySize',
-    label: 'Detection: Frames average',
+    label: '偵測：平均影格數',
     questionMark: {
       title:
-        'The amount of video frames to detect an average bar size from. \nA lower amount of frames results in a faster detection, \nbut does also increase the amount of inaccurate detections.',
+        '用多少個影片影格來計算平均的黑邊大小。\n影格數越少偵測越快，\n但也越容易偵測錯誤。',
     },
     type: 'list',
     default: 4,
@@ -467,10 +420,10 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'barSizeDetectionAllowedElementsPercentage',
-    label: 'Detection: Certainty threshold',
+    label: '偵測：確定性門檻',
     questionMark: {
       title:
-        'At 10% only clear bars are removed.\nA higher percentage can also remove bars with some elements.\nAnd an even higher percentage can crop to a squared element in the center.',
+        '設為 10% 時只會移除明顯的黑邊。\n比例越高，連帶有少量內容的邊也會被移除。\n再更高的話，可能會裁切到只剩中間的方形內容。',
     },
     type: 'list',
     default: 20,
@@ -481,10 +434,10 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'barSizeDetectionAllowedUnevenBarsPercentage',
-    label: 'Detection: Uneven threshold',
+    label: '偵測：不對稱門檻',
     questionMark: {
       title:
-        'Higher percentages detect a more uneven bar.\nFor example: A bar is uneven when the top bar is smaller than the bottem bar.\nBut with a high percentage you also increase the risk that straight objects or lines are seen as bars.',
+        '比例越高，越能偵測不對稱的黑邊。\n例如：上方的黑邊比下方的小。\n但比例越高，筆直的物體或線條也越容易被誤判為黑邊。',
     },
     type: 'list',
     default: 10,
@@ -492,11 +445,10 @@ Click on the questionmark for more and updated information about these artifacts
     max: 50,
     step: 1,
     advanced: true,
-    new: true,
   },
   {
     name: 'horizontalBarsClipPercentage',
-    label: 'Bar size',
+    label: '上下黑邊大小',
     type: 'list',
     default: 0,
     min: 0,
@@ -511,7 +463,7 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'verticalBarsClipPercentage',
-    label: 'Sidebars size',
+    label: '左右黑邊大小',
     type: 'list',
     default: 0,
     min: 0,
@@ -521,27 +473,27 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'horizontalBarsClipPercentageReset',
-    label: 'Reset bars next video',
+    label: '換影片時重設黑邊',
     type: 'checkbox',
     default: true,
     advanced: true,
   },
   {
     name: 'detectVideoFillScaleEnabled',
-    label: 'Fill video to removed bars',
+    label: '放大影片填滿移除的黑邊',
     type: 'checkbox',
     default: false,
     defaultKey: 'H',
   },
   {
     type: 'section',
-    label: 'Filters',
+    label: '濾鏡',
     name: 'sectionImageAdjustmentCollapsed',
     default: true,
   },
   {
     name: 'brightness',
-    label: 'Brightness',
+    label: '亮度',
     type: 'list',
     default: 100,
     min: 0,
@@ -550,7 +502,7 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'contrast',
-    label: 'Contrast',
+    label: '對比',
     type: 'list',
     default: 100,
     min: 0,
@@ -560,7 +512,7 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'vibrance',
-    label: 'Colors',
+    label: '色彩',
     type: 'list',
     default: 100,
     min: 0,
@@ -569,7 +521,7 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'saturation',
-    label: 'Saturation',
+    label: '飽和度',
     type: 'list',
     default: 100,
     min: 0,
@@ -578,14 +530,14 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     type: 'section',
-    label: 'HDR Filters',
+    label: 'HDR 濾鏡',
     name: 'sectionHdrImageAdjustmentCollapsed',
     default: false,
     hdr: true,
   },
   {
     name: 'hdrBrightness',
-    label: 'Brightness',
+    label: '亮度',
     type: 'list',
     default: 100,
     min: 0,
@@ -595,7 +547,7 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'hdrContrast',
-    label: 'Contrast',
+    label: '對比',
     type: 'list',
     default: 100,
     min: 0,
@@ -605,7 +557,7 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'hdrSaturation',
-    label: 'Saturation',
+    label: '飽和度',
     type: 'list',
     default: 100,
     min: 0,
@@ -615,49 +567,49 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     type: 'section',
-    label: 'Directions',
+    label: '方向',
     name: 'sectionDirectionsCollapsed',
     default: true,
     advanced: true,
   },
   {
     name: 'directionTopEnabled',
-    label: 'Top',
+    label: '上',
     type: 'checkbox',
     default: true,
     advanced: true,
   },
   {
     name: 'directionRightEnabled',
-    label: 'Right',
+    label: '右',
     type: 'checkbox',
     default: true,
     advanced: true,
   },
   {
     name: 'directionBottomEnabled',
-    label: 'Bottom',
+    label: '下',
     type: 'checkbox',
     default: true,
     advanced: true,
   },
   {
     name: 'directionLeftEnabled',
-    label: 'Left',
+    label: '左',
     type: 'checkbox',
     default: true,
     advanced: true,
   },
   {
     type: 'section',
-    label: 'Ambient light',
+    label: '環境光',
     name: 'sectionAmbientlightCollapsed',
     default: false,
   },
   {
     name: 'blur2',
-    label: 'Blur',
-    description: 'Uses: GPU memory',
+    label: '模糊',
+    description: '會使用：GPU 記憶體',
     type: 'list',
     default: 30,
     min: 0,
@@ -666,8 +618,8 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'edge',
-    label: 'Edge size',
-    description: 'To better see what changes: Turn the blur to 0%',
+    label: '邊緣大小',
+    description: '把模糊設為 0% 比較容易看出差異',
     type: 'list',
     default: 12,
     min: 2,
@@ -677,8 +629,8 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'spread',
-    label: 'Spread',
-    description: 'Uses: GPU power',
+    label: '擴散範圍',
+    description: '會使用：GPU 效能',
     type: 'list',
     default: 17,
     min: 0,
@@ -687,7 +639,7 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'spreadFadeStart',
-    label: 'Spread fade start',
+    label: '擴散淡出起點',
     type: 'list',
     default: 15,
     min: -50,
@@ -697,8 +649,8 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'spreadFadeCurve',
-    label: 'Spread fade curve',
-    description: 'To better see what changes: Turn the blur to 0%',
+    label: '擴散淡出曲線',
+    description: '把模糊設為 0% 比較容易看出差異',
     type: 'list',
     default: 35,
     min: 1,
@@ -708,10 +660,10 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'debandingStrength',
-    label: 'Debanding (noise)',
+    label: '去色帶（雜訊）',
     questionMark: {
       title:
-        'Click for more information about (noise /dithering).\nTip: Change the "Quality > Optimize debanding for" setting to "OLED" to retain pure blacks on OLED displays.',
+        '點擊查看去色帶（雜訊／抖色）的說明。\n提示：在 OLED 螢幕上，把「品質與效能 > 去色帶最佳化對象」設為「OLED」可以保留純黑。',
       href: 'https://www.lifewire.com/what-is-dithering-4686105',
     },
     type: 'list',
@@ -723,10 +675,10 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'frameFading',
-    label: 'Fade in duration',
-    description: 'Uses: GPU memory',
+    label: '淡入時間',
+    description: '會使用：GPU 記憶體',
     questionMark: {
-      title: 'Fading between changes in the ambient light',
+      title: '環境光變化時淡入淡出',
     },
     type: 'list',
     default: 0,
@@ -737,10 +689,10 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'flickerReduction',
-    label: 'Flicker reduction',
+    label: '減少閃爍',
     questionMark: {
       title:
-        'Reduces flickering by limiting the speed at which brightness changes in the ambient light',
+        '限制環境光亮度變化的速度，藉此減少閃爍',
     },
     type: 'list',
     default: 0,
@@ -752,19 +704,19 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'frameBlending',
-    label: 'Smooth motion (frame blending)',
+    label: '平滑動態（影格混合）',
     questionMark: {
-      title: 'Click for more information about Frame blending',
+      title: '點擊查看影格混合的說明',
       href: 'https://www.youtube.com/watch?v=m_wfO4fvH8M&t=81s',
     },
-    description: 'Uses: GPU power. Also works with "Sync video"',
+    description: '會使用：GPU 效能。也可以搭配「讓影片與環境光同步」',
     type: 'checkbox',
     default: false,
     advanced: true,
   },
   {
     name: 'frameBlendingSmoothness',
-    label: 'Smooth motion strength',
+    label: '平滑動態強度',
     type: 'list',
     default: 80,
     min: 0,
@@ -774,21 +726,65 @@ Click on the questionmark for more and updated information about these artifacts
   },
   {
     name: 'fixedPosition',
-    label: 'Fixed position',
-    description: 'Ignores the scroll position of the page',
+    label: '固定位置',
+    description: '不隨頁面捲動',
     type: 'checkbox',
     default: false,
     advanced: true,
   },
   {
     type: 'section',
-    label: 'View modes',
+    label: '沉浸',
+    name: 'sectionImmersiveCollapsed',
+    default: false,
+  },
+  {
+    name: 'immersiveHeader',
+    label: '頁首與搜尋框融入背景',
+    description: '頁面在最上方時頁首完全透明',
+    type: 'checkbox',
+    default: true,
+  },
+  {
+    name: 'immersiveTheaterView',
+    label: '寬螢幕模式時隱藏頁首',
+    description: '頁面在最上方時',
+    type: 'checkbox',
+    default: false,
+  },
+  {
+    name: 'transparentSidePanels',
+    label: '右側欄融入背景',
+    description:
+      '彈幕列表、選集、關注與訂閱按鈕。透明度可在「頁面內容 > 按鈕與區塊背景不透明度」調整',
+    type: 'checkbox',
+    default: true,
+  },
+  {
+    name: 'transparentPageContent',
+    label: '影片資訊與留言區融入背景',
+    description:
+      '影片標籤、活動與推廣卡片、留言輸入框。透明度可在「頁面內容 > 按鈕與區塊背景不透明度」調整',
+    type: 'checkbox',
+    default: true,
+  },
+  {
+    name: 'transparentSendingBar',
+    label: '彈幕輸入列融入背景',
+    description:
+      '影片下方的輸入列。透明度可在「頁面內容 > 按鈕與區塊背景不透明度」調整',
+    type: 'checkbox',
+    default: true,
+  },
+  {
+    type: 'section',
+    label: '顯示模式',
     name: 'sectionViewsCollapsed',
     default: false,
   },
   {
     name: 'enableInViews',
-    label: 'Enable in layouts',
+    label: '在哪些模式啟用',
     type: 'list',
     manualinput: false,
     default: 0,
@@ -796,44 +792,30 @@ Click on the questionmark for more and updated information about these artifacts
     max: 5,
     step: 1,
     snapPoints: [
-      { value: 0, label: 'All' },
-      { value: 1, label: 'Small' },
-      { value: 2, hiddenLabel: 'Small & Theater' },
-      { value: 3, label: 'Theater' },
-      { value: 4, hiddenLabel: 'Theater & Fullscreen' },
-      { value: 5, label: 'Fullscreen' },
+      { value: 0, label: '全部' },
+      { value: 1, label: '一般' },
+      { value: 2, hiddenLabel: '一般與寬螢幕' },
+      { value: 3, label: '寬螢幕' },
+      { value: 4, hiddenLabel: '寬螢幕與全螢幕' },
+      { value: 5, label: '全螢幕' },
     ],
   },
   {
     name: 'enableInPictureInPicture',
-    label: 'Picture in picture',
+    label: '子母畫面',
     type: 'checkbox',
     default: false,
     advanced: true,
   },
   {
-    name: 'enableInEmbed',
-    label: 'Embedded videos',
-    type: 'checkbox',
-    default: true,
-    advanced: true,
-  },
-  {
-    name: 'enableInVRVideos',
-    label: 'VR/360 videos',
-    type: 'checkbox',
-    default: true,
-    advanced: true,
-  },
-  {
     type: 'section',
-    label: 'General',
+    label: '基本設定',
     name: 'sectionGeneralCollapsed',
     default: false,
   },
   {
     name: 'theme',
-    label: 'Appearance (theme)',
+    label: '外觀（主題）',
     type: 'list',
     manualinput: false,
     default: 1,
@@ -841,14 +823,14 @@ Click on the questionmark for more and updated information about these artifacts
     max: 1,
     step: 1,
     snapPoints: [
-      { value: -1, label: 'Light' },
-      { value: 0, label: 'Default' },
-      { value: 1, label: 'Dark' },
+      { value: -1, label: '淺色' },
+      { value: 0, label: '跟隨 B 站' },
+      { value: 1, label: '深色' },
     ],
   },
   {
     name: 'enabled',
-    label: 'Enabled',
+    label: '啟用',
     type: 'checkbox',
     default: true,
     defaultKey: 'G',
@@ -880,7 +862,7 @@ export const prepareSettingsConfigOnce = () => {
       }
       if (['webGL'].includes(setting.name)) {
         setting.default = false;
-        setting.disabled = 'You have disabled WebGL in your browser.';
+        setting.disabled = '你已在瀏覽器中停用 WebGL。';
       }
     }
 
@@ -894,10 +876,6 @@ export const prepareSettingsConfigOnce = () => {
         setting.default = 0;
       }
     }
-  }
-
-  if (getBrowser() === 'Firefox') {
-    settingsToRemove.push('enableInVRVideos');
   }
 
   if (!supportsColorMix()) {

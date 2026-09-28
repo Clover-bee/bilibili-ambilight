@@ -1,3 +1,6 @@
+// Ambient light for Bilibili
+// Based on the styles of Ambient light for YouTube™ by Wessel Kroos (MIT License)
+
 @mixin input-range-track {
   &::-webkit-slider-runnable-track {@content}
   &::-moz-range-track {@content}
@@ -52,14 +55,6 @@
     border-radius: 9px;
     background: rgba(0, 0, 0, .2);
     background-clip: content-box;
-  }
-}
-
-@mixin ytd-watch {
-  ytd-watch-flexy,
-  ytd-watch-fixie,
-  ytd-watch-grid {
-    @content;
   }
 }
 
@@ -212,28 +207,6 @@
 }
 
 
-/* Override incorrect default description colors when switching between themes */
-    
-#description {
-  .yt-core-attributed-string {
-    &--link-inherit-color {
-      color: inherit !important;
-    }
-
-    &--highlight-text-decorator {
-      background-color: var(--yt-spec-badge-chip-background) !important;
-
-      .yt-core-attributed-string__link--call-to-action-color {
-        color: inherit !important;
-      }
-    }
-
-    &__link--call-to-action-color {
-      color: var(--yt-spec-call-to-action) !important;
-    }
-  }
-}
-
 html {
   &[data-ambientlight-hide-scrollbar],
   &[data-ambientlight-immersive] {
@@ -244,1113 +217,124 @@ html {
   }
 }
 
-#masthead-container.no-animation {
-  &,
-  ytd-masthead,
-  #background.ytd-masthead {
-    transition: none !important;
-  }
-}
+/* Bilibili page */
 
 html[data-ambientlight-enabled] {
-  /* General */
-
-  body {
-    --yt-spec-text-secondary: rgba(10, 10, 10, 0.8);
-    --yt-spec-icon-inactive: rgba(10, 10, 10, 0.65);
-    --yt-spec-10-percent-layer: rgba(0, 0, 0, .1);
-    --yt-spec-outline: var(--yt-spec-10-percent-layer);
-
-    --ytal-text-rgb: 10;
-    --ytal-background: rgba(0,0,0,.1); // fallback
-    --ytal-background: rgba(0,0,0,calc((var(--ytal-fill-opacity, .55) - .5) * 2)); // fallback
-    --ytal-background-opacity: calc((max(var(--ytal-fill-opacity, .55), .5) * 2) - (min(var(--ytal-fill-opacity, .55), .5) * 2));
-    --ytal-background-rgb: calc(max(0, min(255, 255 * (99 - var(--ytal-fill-opacity, .55) * 200))));
-    --ytal-background: rgba(
-      var(--ytal-background-rgb), 
-      var(--ytal-background-rgb), 
-      var(--ytal-background-rgb),
-      var(--ytal-background-opacity)
-    );
-    --ytal-background-10-percent: rgba(0,0,0,.1); // fallback
-    --ytal-background-10-percent: rgb(
-      var(--ytal-background-rgb),
-      var(--ytal-background-rgb),
-      var(--ytal-background-rgb),
-      .1
-    );
-  }
-  &[dark] {
-    // Make all card backgrounds transparent
-    // --yt-spec-brand-background-solid: none; // Causes transparent add-to-playlist popup on Firefox
-    //--yt-spec-brand-background-primary: none; // Causes transparent account popup on Firefox
-    // --yt-spec-brand-background-secondary: none;
-    // --yt-spec-general-background-a: none; // Causes transparent menu on Firefox
-    // --yt-spec-general-background-b: none;
-    // --yt-spec-general-background-c: none;
-    // --yt-spec-snackbar-background: none;
-    body {
-      --yt-spec-text-secondary: rgba(245, 245, 245, 0.8);
-      --yt-spec-icon-inactive: rgba(245, 245, 245, 0.65);
-      --yt-spec-10-percent-layer: rgba(255, 255, 255, .1);
-
-      --ytal-text-rgb: 245;
-      --ytal-background: rgba(255,255,255,.1); // fallback
-      --ytal-background: rgba(255,255,255,calc((var(--ytal-fill-opacity, .55) - .5) * 2)); // fallback
-      --ytal-background-rgb: calc(max(0, min(255, 255 * (-99 + var(--ytal-fill-opacity, .55) * 200))));
-      --ytal-background: rgba(
-        var(--ytal-background-rgb), 
-        var(--ytal-background-rgb), 
-        var(--ytal-background-rgb),
-        var(--ytal-background-opacity)
-      );
-      --ytal-background-10-percent: rgba(255,255,255,.1); // fallback
-      --ytal-background-10-percent: rgba(
-        var(--ytal-background-rgb), 
-        var(--ytal-background-rgb), 
-        var(--ytal-background-rgb),
-        .1
-      );
-    }
-  }
-
-  &,
-  &[lang],
-  &[style],
-  body {
-    @include scrollbar-light-thin(true);
-  }
-
-  &[dark] {
-    &,
-    &[lang],
-    &[style],
-    body {
-      @include scrollbar-dark-thin(true);
-    }
-  }
-
-  ytd-app[scrolling] {
-    &:hover {
-      will-change: scroll-position !important; /* Improves scroll performance */
-    }
-  }
-
-  #content.ytd-app {
-    position: relative; /* Fixes ambientlight auto height */
-    z-index: 0; /* Fixes ambientlight behind the ytd-app z-index */
-  }
-
-  /* Override incorrect default description colors when switching between themes */
-
-  ytd-subscription-notification-toggle-button-renderer-next .yt-spec-button-shape-next__icon svg path[fill] {
-    fill: var(--yt-spec-text-primary) !important;
-  }
-  
-  .title.ytd-playlist-panel-renderer,
-  #next-video-title.ytd-playlist-panel-renderer,
-  .yt-spec-button-shape-next--mono {
-    color: var(--yt-spec-text-primary) !important;
-  }
-
-  .yt-spec-button-shape-next--filled:not(.yt-spec-button-shape-next--call-to-action) {
-    background: var(--yt-spec-inverted-background) !important;
-    color: var(--yt-spec-text-primary-inverse) !important;
-  }
-  
-  .byline-title.ytd-playlist-panel-renderer,
-  .byline-title.ytd-playlist-panel-renderer a, 
-  .index-message-wrapper.ytd-playlist-panel-renderer,
-  .index-message-wrapper.ytd-playlist-panel-renderer::before {
-    color: var(--yt-spec-text-secondary) !important;
-  }
-
-  .yt-spec-button-shape-next--outline:not(.yt-spec-button-shape-next--call-to-action:hover) {
-    border-color: rgba(0,0,0, .2) !important;
-  }
-  &[dark] .yt-spec-button-shape-next--outline:not(.yt-spec-button-shape-next--call-to-action:hover) {
-    border-color: rgba(255,255,255, .2) !important;
-  }
-
-  /* Cosmetics - Transparent elements */
-
-  #masthead-container {
-    &.ytal-header-transparent,
-    &.at-top {
-      ytd-masthead,
-      #background.ytd-masthead {
-        background: none !important;
-      }
-      #voice-search-button {
-        background: transparent !important;
-      }
-    }
-    &:not(.at-top) {
-      ytd-masthead {
-        background: rgba(255,255,255) !important;
-        &[dark] {
-          background: rgba(15,15,15) !important;
-        }
-      }
-    }
-    &.ytal-header-transparent {
-      &:not(.at-top) {
-        ytd-masthead {
-          &,
-          &[dark] {
-            backdrop-filter: blur(30px);
-            --yt-spec-outline: rgba(0,0,0,.1);
-            --yt-spec-static-overlay-button-primary: rgba(0,0,0, .1);
-
-            --ytal-background: rgba(255,255,255,.1); // fallback
-            --ytal-background: rgba(255,255,255,calc((var(--ytal-fill-opacity, .55) - .5) * 2)); // fallback
-            --ytal-background-rgb: calc(max(0, min(255, 255 * (-99 + var(--ytal-fill-opacity, .55) * 200))));
-            --ytal-background: rgba(
-              var(--ytal-background-rgb), 
-              var(--ytal-background-rgb), 
-              var(--ytal-background-rgb),
-              calc((max(var(--ytal-fill-opacity, .55), .5) * 2) - (min(var(--ytal-fill-opacity, .55), .5) * 2))
-            );
-            background: var(--ytal-background) !important;
-          }
-        }
-      }
-    }
-  }
-  &[dark] #masthead-container {
-    &:not(.at-top) {
-      ytd-masthead  {
-        background: rgba(15,15,15) !important;
-      }
-    }
-    &.ytal-header-transparent:not(.at-top) {
-      ytd-masthead {
-        --ytal-background: rgba(0,0,0,.1); // fallback
-        --ytal-background: rgba(0,0,0,calc((var(--ytal-fill-opacity, .55) - .5) * 2)); // fallback
-        --ytal-background-rgb: calc(max(0, min(255, 255 * (99 - var(--ytal-fill-opacity, .55) * 200))));
-        --ytal-background: rgba(
-          var(--ytal-background-rgb), 
-          var(--ytal-background-rgb), 
-          var(--ytal-background-rgb),
-          calc((max(var(--ytal-fill-opacity, .55), .5) * 2) - (min(var(--ytal-fill-opacity, .55), .5) * 2))
-        );
-        background: var(--ytal-background) !important;
-      }
-    }
-  }
-
-  #player-theater-container, // Old theater view
-  #player-wide-container, // Second old theater view
-  #full-bleed-container,
-  #player-full-bleed-container,
-  #player,
-  #player-container,
-  #ytd-player,
-  .html5-video-player,
-  .html5-main-video {
-    background: none !important;
-  }
-  
-  // // Covers any future updates to the html structure, but is expensive
-  // @supports selector(:has(*)) {
-  //   @include ytd-watch {
-  //     div:has(.html5-main-video) {
-  //       background: none !important;
-  //     }
-  //   }
-  // }
-
-  ytd-app {
+  // The variables are defined on the html element, because the page background is painted on the html element
+  & {
     --ytal-page-background: #fff;
     @supports (background-color: color-mix(in srgb, #000 0%, #000)) {
       --ytal-page-background: color-mix(in srgb, #808080 var(--ytal-page-background-greyness, 0%), #ffffff);
     }
 
-    &,
-    .ambientlight__container {
-      background: #fff !important;
-      background: var(--ytal-page-background) !important;
-      background-color: var(--ytal-page-background) !important;
-    }
+    --ytal-text-rgb: 10;
+    --ytal-blend-border: rgba(0, 0, 0, .1);
+    // Text fields keep a stronger background, because the text has to stay readable above a bright ambient light
+    --ytal-blend-input-background: rgba(255, 255, 255, .5);
+    --ytal-background: rgba(0,0,0,.1); // fallback
+    --ytal-background-opacity: calc((max(var(--ytal-fill-opacity, .55), .5) * 2) - (min(var(--ytal-fill-opacity, .55), .5) * 2));
+    --ytal-background-rgb: calc(max(0, min(255, 255 * (99 - var(--ytal-fill-opacity, .55) * 200))));
+    --ytal-background: rgba(
+      var(--ytal-background-rgb),
+      var(--ytal-background-rgb),
+      var(--ytal-background-rgb),
+      var(--ytal-background-opacity)
+    );
   }
-
-  &[dark] ytd-app {
+  &.night-mode {
     --ytal-page-background: #000;
     @supports (background-color: color-mix(in srgb, #000 0%, #000)) {
       --ytal-page-background: color-mix(in srgb, #808080 var(--ytal-page-background-greyness, 0%), #000000);
     }
+
+    --ytal-text-rgb: 245;
+    --ytal-blend-border: rgba(255, 255, 255, .1);
+    --ytal-blend-input-background: rgba(0, 0, 0, .3);
+    --ytal-background: rgba(255,255,255,.1); // fallback
+    --ytal-background-rgb: calc(max(0, min(255, 255 * (-99 + var(--ytal-fill-opacity, .55) * 200))));
+    --ytal-background: rgba(
+      var(--ytal-background-rgb),
+      var(--ytal-background-rgb),
+      var(--ytal-background-rgb),
+      var(--ytal-background-opacity)
+    );
+  }
+
+  &,
+  body {
+    @include scrollbar-light-thin(true);
+  }
+  &.night-mode {
     &,
-    .ambientlight__container {
-      background: #000 !important;
-      background: var(--ytal-page-background) !important;
-      background-color: var(--ytal-page-background) !important;
+    body {
+      @include scrollbar-dark-thin(true);
     }
   }
 
-  ytd-masthead,
-  #background.ytd-masthead {
-    transition: background-color .15s;
+  // The ambient light is placed at the end of the body (outside of #app, because
+  // Bilibili renders #app with Vue) with a negative z-index behind the content of the page.
+  // The page background is painted on the html element (canvas), because the background of the
+  // positioned body would be painted above the negative z-index of the ambient light
+  & {
+    background: var(--ytal-page-background) !important;
   }
-  #masthead-container.ytal-header-transparent ytd-masthead {
-    transition: background-color .15s, box-shadow .15s;
-  }
-  #masthead-container.ytd-app::after {
-    display: none;
-  }
-  #masthead-container:not(.ytal-header-transparent):not(.at-top) #voice-search-button {
-    transition: background-color .15s .05s;
+  body {
+    position: relative;
+    background: transparent !important;
   }
 
-  /* Disable ambient mode */
-  
-  #cinematics,
-  #cinematics-container, // Old theater view
-  #cinematics-wide-container, // Second old theater view
-  #cinematics-full-bleed-container {
-    display: none !important;
+  // :not(#_) increases the specificity above the id selectors of Bilibili
+  [data-ambientlight-app]:not(#_) {
+    background: transparent !important;
   }
 
-  /* Video preview while moving the timeline */
+  /* Player */
 
-  .ytp-storyboard-framepreview {
-    max-width: 100%; //Prevent horizontal scrollbar bug
+  .bpx-player-container {
+    box-shadow: none !important;
   }
-  
-  //Reduce theater mode flicker when switching between enabled and disabled
-  // #player-theater-container, // Old theater view
-  // #player-wide-container, // Second old theater view
-  // // #player-full-bleed-container,
-  // #full-bleed-container {
-  //   transition: background-color 0s .01s;
-  // }
 
-  // // Covers any future updates to the html structure, but is expensive
-  // @supports selector(:has(*)) {
-  //   ytd-app > div:has(ytd-player) {
-  //     transition: background-color 0s .01s;
-  //   }
-  // }
+  // The loading placeholder stays behind the loaded player and would cover the ambient light
+  // around the video (black bars) and below the danmaku input bar
+  #bilibili-player-placeholder {
+    visibility: hidden !important;
+  }
+
+  // Show the ambient light around the video instead of the black background of the player
+  .bpx-player-video-area {
+    background: none !important;
+    overflow: var(--ytal-html5-video-player-overflow, hidden) !important;
+  }
+  // The ambient light is hidden in the mini player (when the page is scrolled down)
+  .bpx-player-container[data-screen="mini"] .bpx-player-video-area {
+    background: #000 !important;
+  }
 
   /* Video */
 
-  .html5-video-player.ended-mode .html5-video-container {
-    opacity: 0;
-  }
-  .html5-main-video {
-    transform-origin: center center;
-    transform: var(--video-transform);
+  .bpx-player-video-wrap {
+    position: relative;
+
+    > video,
+    > .ambientlight__video-overlay,
+    > .ambientlight__video-debanding {
+      // Removes the black bars and resizes the video
+      clip-path: var(--ytal-video-clip-path, none);
+      scale: var(--ytal-video-scale, none);
+    }
 
     // Disable the direct composition video overlay that can cause artifacts on Windows
     // https://github.com/WesselKroos/youtube-ambilight/blob/master/TROUBLESHOOT.md#3-nvidia-rtx-video-super-resolution-vsr--nvidia-rtx-video-hdr-does-not-work
-    // .html5-video-container[style*="--video-transform"] {
-    &.ambientlight__chromium-bug-direct-video-overlay-workaround {
-      clip-path: inset(0% 0%); // Till Chromium 127?
-      filter: opacity(1); // From Chromium 127?
-      transform: var(--video-transform, translate3d(0, 0, 1px)); // Firefox
+    > video.ambientlight__chromium-bug-direct-video-overlay-workaround {
+      clip-path: var(--ytal-video-clip-path, inset(0% 0%));
+      filter: opacity(1);
     }
   }
 
-  /* Cosmetics - Chapters & Transcriptions & Side comments */
-
-  #header.ytd-engagement-panel-title-header-renderer,
-  #subheader.ytd-engagement-panel-title-header-renderer {
-    background: none !important;
-  }
-
-  .ytwTimelineChapterViewModelHost {
-    background: none !important;
-    backdrop-filter: blur(4px);
-  }
-
-  .yt-core-attributed-string--link-inherit-color {
-    color: inherit !important;
-  }
-
-  .shelf-header-layout-wiz__title,
-  .ytChipShapeInactive,
-  .ytwTimelineItemViewModelTimestampActive,
-  .ytwTranscriptSegmentViewModelHostActive,
-  .ytwTimelineChapterViewModelTitle,
-  .shortsLockupViewModelHostOutsideMetadataEndpoint,
-  .yt-video-attribute-view-model__title,
-  .yt-lockup-metadata-view-model-wiz__title,
-  .badge-shape-wiz--ad,
-  .ytwAdAvatarLockupViewModelHostIsClickableAdComponentTextsStyleCompactHeadlineWidthUnlocked,
-  .ytwAdAvatarLockupViewModelHostTextsStyleCompactHeadlineWidthUnlocked {
-    color: var(--yt-spec-text-primary) !important;
-  }
-
-  .ytwTimelineItemViewModelTimestamp,
-  .ytwTranscriptSegmentViewModelHost,
-  .shortsLockupViewModelHostOutsideMetadataSubhead,
-  .yt-video-attribute-view-model__subtitle,
-  .yt-video-attribute-view-model__secondary-subtitle,
-  .yt-lockup-metadata-view-model-wiz__metadata,
-  .badge-shape-wiz--default,
-  .ytwAdDetailsLineViewModelHostIsClickableAdComponentTextStyleStandard,
-  .ytwAdDetailsLineViewModelHostTextStyleStandard {
-    color: var(--yt-spec-text-secondary) !important;
-  }
-  
-  .ytwTimelineItemViewModelTimestamp {
-    background-color: rgba(255,255,255,.1) !important;
-  }
-  &[dark] .ytwTimelineItemViewModelTimestamp {
-    background-color: rgba(0,0,0,.1) !important;
-  }
-
-  #content.ytd-engagement-panel-section-list-renderer {
-    background: none !important;
-    
-    #contents.ytd-section-list-renderer,
-    ytd-structured-description-content-renderer {
-      overflow-x: hidden; // Prevents scrollbar caused by negative margins of the text-shadow workaround
-      @include scrollbar-light-thin();
-      &:hover {
-        will-change: scroll-position;
-      }
-    }
-  }
-  &[dark] #content.ytd-engagement-panel-section-list-renderer {
-    #contents.ytd-section-list-renderer,
-    ytd-structured-description-content-renderer {
-      @include scrollbar-dark-thin();
-    }
-  }
-
-  @mixin macro-marker-and-transcript-time {
-    ytd-transcript-segment-list-renderer .segment-timestamp.ytd-transcript-segment-renderer {
-      @content;
-    }
-    ytd-macro-markers-list-item-renderer {
-      &,
-      &:hover,
-      &[active] {
-        #time.ytd-macro-markers-list-item-renderer {
-          @content;
-        }
-      }
-    }
-  }
-  @include macro-marker-and-transcript-time {
-    background-color: rgba(255, 255, 255, .05) !important;
-  }
-  &[dark] {
-    @include macro-marker-and-transcript-time {
-      background-color: rgba(0, 0, 0, .05) !important;
-    }
-  }
-
-  ytd-transcript-search-box-renderer {
-    background: none;
-  }
-
-  .input-container.ytd-transcript-search-box-renderer {
-    background: none;
-    border: 1px solid var(--yt-spec-10-percent-layer) !important;
-  }
-
-  ytd-macro-markers-list-item-renderer yt-icon {
-    color: var(--yt-spec-text-primary) !important;
-  }
-
-  /* Cosmetics - Search */
-
-  #masthead-container {
-    #guide-icon.ytd-masthead,
-    yt-icon.ytd-logo,
-    yt-icon.ytd-topbar-logo-renderer,
-    #country-code.ytd-topbar-logo-renderer {
-      transition: color .15s;
-    }
-
-    #logo.ytd-topbar-logo-renderer,
-    #buttons.ytd-masthead ytd-topbar-menu-button-renderer {
-      transition: opacity .15s;
-    }
-    &.at-top {
-      #buttons.ytd-masthead ytd-topbar-menu-button-renderer,
-      #logo.ytd-topbar-logo-renderer {
-        &:not(:hover):not(:focus-within) {
-          opacity: var(--ytal-image-opacity) !important;
-        }
-      }
-    }
-  }
-
-  ytd-searchbox,
-  yt-searchbox {
-    .ytSearchboxComponentSuggestionsContainer,
-    #container.ytd-searchbox, .ytSearchboxComponentInputBox,
-    #search-icon-legacy, .ytSearchboxComponentSearchButton {
-      transition: background-color .15s, border-color .15s, box-shadow .15s, color .15s, fill .15s;
-      box-shadow: none !important;
-    }
-    #search,
-    #search::-webkit-input-placeholder,
-    .ytSearchboxComponentInput::-webkit-input-placeholder,
-    #search-clear-button yt-icon, .ytSearchboxComponentClearButton yt-icon,
-    #search-icon-legacy yt-icon, .ytSearchboxComponentSearchButton yt-icon {
-      transition: color .15s;
-    }
-    .gsst_e {
-      transition: opacity .15s, filter .15s;
-    }
-  }
-  #masthead-container.at-top {
-    ytd-searchbox,
-    yt-searchbox {
-      #container.ytd-searchbox, .ytSearchboxComponentInputBox,
-      #search-icon-legacy, .ytSearchboxComponentSearchButton {
-        transition: color .15s, fill .15s;
-      }
-    }
-  }
-
-  $account-btn: '.yt-spec-button-shape-next--outline';
-  @mixin masthead-icon {
-    #guide-button,
-    #back-button,
-    #search-button-narrow,
-    #voice-search-button,
-    #buttons.ytd-masthead ytd-topbar-menu-button-renderer,
-    #buttons.ytd-masthead ytd-notification-topbar-button-renderer,
-    #buttons.ytd-masthead ytd-button-renderer,
-    #buttons.ytd-masthead .ytd-masthead[is-icon-button] {
-      &:not(:hover) button:not(:focus) yt-icon {
-        @content;
-      }
-    }
-  }
-
-  #masthead-container {
-    #search-button-narrow,
-    ytd-notification-topbar-button-renderer,
-    ytd-button-renderer {
-      color: var(--yt-spec-icon-active-other);
-      
-      .yt-icon-button,
-      .yt-spec-icon-badge-shape,
-      .yt-spec-icon-badge-shape--style-overlay .yt-spec-icon-badge-shape__icon,
-      .yt-spec-button-shape-next--overlay.yt-spec-button-shape-next--text,
-      .yt-spec-button-shape-next
-      {
-        color: inherit;
-      }
-    }
-
-    #voice-search-button {
-      color: rgba(255,255,255,.1) !important;
-      &:hover,
-      &:focus-within {
-        color: inherit !important;
-      }
-    }
-
-    @include masthead-icon {
-      transition: color .15s;
-    }
-    &.ytal-header-transparent,
-    &.at-top {
-      @include masthead-icon {
-        color: rgba(0,0,0,.4) !important;
-        fill: currentColor !important;
-      }
-    }
-
-    #{$account-btn} {
-      transition: border-color .15s, color .15s;
-    }
-    &.ytal-header-transparent,
-    &.at-top {
-      .yt-spec-button-shape-next--overlay.yt-spec-button-shape-next--text,
-      .yt-spec-button-shape-next,
-      #{$account-btn}:not(.yt-spec-button-shape-next--call-to-action) {
-        color: inherit;
-      }
-    }
-
-    ytd-searchbox,
-    yt-searchbox {
-      &:not([has-focus]):not(:focus-within):not(:hover) {
-        #container.ytd-searchbox, .ytSearchboxComponentInputBox {
-          background: none !important;
-        }
-      }
-      &:not([has-focus]):not(:focus-within) {
-        #container.ytd-searchbox, .ytSearchboxComponentInputBox {
-          // Fix short flicker from white on input focus
-          border-right: 0px solid transparent;
-        }
-      }
-    }
-
-    &.at-top {
-      ytd-searchbox,
-      yt-searchbox {
-          &:not([has-focus]):not(:focus-within):not(:hover) {
-          .gsst_e {
-            opacity: .4;
-          }
-        } 
-      }
-    }
-  }
-
-  // Header at top
-  &:not([dark]) #masthead-container {
-    &.ytal-header-transparent,
-    &.at-top {
-      --yt-button-color: #000;
-      #search-button-narrow,
-      ytd-notification-topbar-button-renderer,
-      ytd-button-renderer {
-        color: inherit;
-      }
-
-      #guide-icon.ytd-masthead,
-      yt-icon.ytd-topbar-logo-renderer, // old design
-      yt-icon.ytd-logo // new design
-      {
-        color: #000;
-      }
-      #country-code.ytd-topbar-logo-renderer {
-        color: rgba(20, 20, 20);
-      }
-
-      @include masthead-icon {
-        color: rgba(0,0,0) !important;
-      }
-
-      #guide-button,
-      #back-button {
-        &:hover,
-        &:focus-within {
-          color: rgba(0,0,0) !important;
-        }
-      }
-
-      #voice-search-button {
-        color: rgba(0,0,0,.4) !important;
-        &:not(:hover) button:not(:focus) yt-icon {
-          color: rgba(0,0,0,.4) !important;
-        }
-        &:hover,
-        &:focus-within {
-          button {
-            color: var(--yt-button-color) !important;
-          }
-        }
-      }
-    }
-
-    &.at-top {
-      #country-code.ytd-topbar-logo-renderer {
-        color: rgba(20, 20, 20, .4);
-      }
-
-      ytd-topbar-menu-button-renderer,
-      ytd-notification-topbar-button-renderer,
-      ytd-button-renderer,
-      #buttons.ytd-masthead .ytd-masthead[is-icon-button] {
-        color: rgba(0,0,0,.4) !important;
-        &:hover,
-        &:focus-within {
-          color: rgba(0,0,0,1) !important;
-        }
-      }
-
-      #voice-search-button {
-        color: rgba(var(--yt-button-color),.1) !important;
-        &:hover,
-        &:focus-within {
-          button {
-            color: rgba(var(--yt-button-color),1) !important;
-          }
-        }
-      }
-
-      #{$account-btn} {
-        border-color: rgba(0,0,0,.4) !important;
-        &:not(.yt-spec-button-shape-next--call-to-action) {
-          color: rgba(0,0,0,.4) !important;
-        }
-      }
-
-      ytd-masthead[dark] {
-        #country-code.ytd-topbar-logo-renderer {
-          color: rgba(0, 0, 0, .4);
-        }
-
-        @include masthead-icon {
-          color: rgba(0,0,0,.4) !important;
-        }
-
-        #guide-button,
-        #back-button {
-          &:hover,
-          &:focus-within {
-            color: rgba(0,0,0,1) !important;
-          }
-        }
-
-        #voice-search-button {
-          color: rgba(0,0,0,.1) !important;
-          &:hover,
-          &:focus-within {
-            button {
-              color: rgba(0,0,0,1) !important;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  &[dark] #masthead-container {
-    &.ytal-header-transparent,
-    &.at-top {
-      #country-code.ytd-topbar-logo-renderer {
-        color: rgba(245, 245, 245, .4);
-      }
-      
-      @include masthead-icon {
-        color: rgba(255,255,255,.4) !important;
-      }
-
-      #voice-search-button {
-        color: rgba(255,255,255,.1) !important;
-        &:hover,
-        &:focus-within {
-          color: rgba(255,255,255,1) !important;
-        }
-      }
-
-      #{$account-btn} {
-        border-color: rgba(255,255,255,.2) !important;
-        &:not(.yt-spec-button-shape-next--call-to-action) {
-          color: rgba(255,255,255,.4) !important;
-        }
-      }
-    }
-  }
-
-  /* Header searchbar at top or transparent*/
-
-  &:not([dark]) #masthead-container {
-    &.ytal-header-transparent,
-    &.at-top {
-      ytd-searchbox,
-      yt-searchbox {
-        &:not(:hover):not(:focus-within) {
-          .ytSearchboxComponentSuggestionsContainer,
-          #container.ytd-searchbox, .ytSearchboxComponentInputBox,
-          #search-icon-legacy, .ytSearchboxComponentSearchButton {
-            background-color: transparent !important;
-            border-color: rgba(0,0,0,.1) !important;
-          }
-          #search,
-          #search-clear-button yt-icon, .ytSearchboxComponentClearButton yt-icon,
-          #search-icon-legacy yt-icon, .ytSearchboxComponentSearchButton yt-icon {
-            color: rgba(0,0,0,.4) !important;
-          }
-          #search,
-          .ytSearchboxComponentInput {
-            &::-webkit-input-placeholder {
-              color: rgba(0,0,0,.4) !important;
-            }
-          }
-        }
-          
-        &:hover,
-        &:focus-within {
-          .ytSearchboxComponentSuggestionsContainer,
-          #container.ytd-searchbox, .ytSearchboxComponentInputBox,
-          #search-icon-legacy, .ytSearchboxComponentSearchButton {
-            border-color: rgba(0,0,0,.1) !important;
-          }
-          #search-icon-legacy, .ytSearchboxComponentSearchButton {
-            background-color: rgb(248,248,248) !important;
-          }
-          #search-clear-button yt-icon, .ytSearchboxComponentClearButton yt-icon {
-            color: rgb(15,15,15) !important;
-          }
-        }
-      }
-      .ytSearchboxComponentSuggestionsContainer {
-        background-color: rgb(255,255,255) !important;
-      }
-      .ytSuggestionComponentSuggestion {
-        color: rgb(15,15,15) !important;
-      }
-
-      #search-button-narrow {
-        color: rgba(0,0,0,.4) !important;
-        &:hover,
-        &:focus-within {
-          color: rgba(0,0,0,1) !important;
-        }
-      }
-
-      ytd-masthead[dark] {
-        ytd-searchbox,
-        yt-searchbox {
-          &:not(:hover):not(:focus-within) .gsst_e {
-            filter: none;
-          }
-          
-          &:hover,
-          &:focus-within {
-            #search-icon-legacy, .ytSearchboxComponentSearchButton {
-              background-color: rgb(44,44,44) !important;
-            }
-            #search-clear-button yt-icon, .ytSearchboxComponentClearButton yt-icon {
-              color: rgba(255,255,255) !important;
-            }
-          }
-        }
-        .ytSearchboxComponentSuggestionsContainer {
-          background-color: rgb(33,33,33) !important;
-        }
-        .ytSuggestionComponentSuggestion {
-          color: rgb(241,241,241) !important;
-        }
-      }
-    }
-  }
-
-  &[dark] #masthead-container {
-    &.ytal-header-transparent,
-    &.at-top {
-      ytd-searchbox,
-      yt-searchbox {
-        &:not(:hover):not(:focus-within) {
-          #container.ytd-searchbox, .ytSearchboxComponentInputBox {
-            box-shadow: none !important;
-          }
-          #container.ytd-searchbox, .ytSearchboxComponentInputBox,
-          #search-icon-legacy, .ytSearchboxComponentSearchButton {
-            background-color: transparent !important;
-            border-color: rgba(255,255,255,.1) !important;
-          }
-          #search,
-          #search-clear-button yt-icon, .ytSearchboxComponentClearButton yt-icon, 
-          #search-icon-legacy yt-icon, .ytSearchboxComponentSearchButton yt-icon {
-            color: rgba(255,255,255,.4) !important;
-          }
-          #search,
-          .ytSearchboxComponentInput {
-            &::-webkit-input-placeholder {
-              color: rgba(255,255,255,.4) !important;
-            }
-          }
-        }
-        
-        &:hover,
-        &:focus-within {
-          #search-icon-legacy, .ytSearchboxComponentSearchButton {
-            background-color: rgb(44,44,44) !important;
-          }
-        }
-      }
-      .ytSearchboxComponentSuggestionsContainer {
-        background-color: rgb(33,33,33) !important;
-      }
-      .ytSuggestionComponentSuggestion {
-        color: rgb(241,241,241) !important;
-      }
-    }
-  }
-
-  /* Cosmetics - Clarify box (To prevent css filter shadow flickering) */
-
-  ytd-clarification-renderer {
-    margin-top: 24px;
-    background: var(--ytal-background) !important;
-  }
-  &[dark] ytd-clarification-renderer {
-    background: var(--ytal-background) !important;
-  }
-
-  /* Cosmetics - Clarify box info panel */
-
-  ytd-info-panel-content-renderer {
-    &,
-    .header,
-    .content {
-      background: none !important;
-    }
-  }
-
-  ytd-info-panel-container-renderer {
-    .header {
-      background: none !important;
-    }
-    .divider-offset {
-      border-color: var(--yt-spec-outline) !important;
-    }
-    .header,
-    .content {
-      border: 1px solid var(--yt-spec-outline) !important;
-    }
-    .header {
-      border-bottom-style: none !important;
-    }
-    .content {
-      border-top-style: none !important;
-    }
-  }
-
-  /* Cosmetics - Merch shelf */
-
-  ytd-merch-shelf-renderer {
-    background: none !important;
-  }
-  a.ytd-merch-shelf-item-renderer:not(:hover):not(:focus) yt-img-shadow.ytd-merch-shelf-item-renderer {
-    opacity: var(--ytal-image-opacity) !important;
-  }
-
-  /* Cosmetics - Movie offer */ 
-
-  ytd-tvfilm-offer-module-renderer {
-    background: none !important;
-  }
-  $movie-offer: '#header.ytd-movie-offer-module-renderer, #wide-clickable-area.ytd-movie-offer-module-renderer, #header.ytd-tvfilm-offer-module-renderer';
-  #{$movie-offer} {
-    background: var(--ytal-background) !important;
-  }
-  &[dark] #{$movie-offer} {
-    background: var(--ytal-background) !important;
-  }
-
-  /* Live chat replay panel */
-
-  .ytVideoMetadataCarouselViewModelHost {
-    background: var(--ytal-background) !important;
-  }
-  .ytCarouselTitleViewModelTitle,
-  .ytTextCarouselItemViewModelHost {
-    color: var(--yt-spec-text-primary);
-  }
-
-  /* Live chat (Iframe styling in live-chat.css */
-
-  ytd-live-chat-frame,
-  ytd-live-chat-frame ytd-toggle-button-renderer {
-    background: none !important;
-  }
-  ytd-live-chat-frame ytd-toggle-button-renderer {
-    button, a {
-      text-shadow: inherit !important;
-      &:not(.yt-spec-button-shape-next--size-m) {
-        border-radius: 12px;
-      }
-    }
-    .yt-spec-button-shape-next--button-text-content {
-      width: 100%; // Fixes shadow clipping
-    }
-  }
-  ytd-live-chat-frame ytd-toggle-button-renderer:not(:hover):not(:focus-within) {
-    button.yt-spec-button-shape-next--size-m {
-      background: var(--ytal-background) !important;
-    }
-  }
-  ytd-live-chat-frame[collapsed] {
-    border-color: transparent !important;
-
-    ytd-toggle-button-renderer {
-      margin-left: 1px !important;
-      margin-right: 1px !important;
-
-      button, a {
-        border-color: transparent !important;
-        box-shadow: var(--yt-spec-outline) 0 0 0 1px !important;
-        &:not(.yt-spec-button-shape-next--size-m) {
-          border-radius: 12px;
-          padding: 3px;
-        }
-      }
-    }
-  }
-  ytd-live-chat-frame:not([collapsed]) ytd-toggle-button-renderer:not(:hover):not(:focus-within) {
-    button, a {
-      &:not(:active) {
-        background: none !important;
-        box-shadow: none !important;
-      }
-    }
-  }
-
-  /* Like button icon (gets an incorrect theme after switching device themes 2 times) */
-  segmented-like-dislike-button-view-model,
-  ytd-segmented-like-dislike-button-renderer {
-    lottie-component path {
-      &[fill="rgb(255,255,255)"],
-      &[stroke="rgb(255,255,255)"],
-      &[fill="rgb(0,0,0)"],
-      &[stroke="rgb(0,0,0)"]
-      {
-        fill: inherit;
-        stroke: inherit;
-      }
-    }
-  }
-
-  /* Cosmetics - Rich metadata */
-
-  ytd-rich-metadata-renderer {
-    background: var(--ytal-background) !important;
-  }
-
-  ytd-engagement-panel-section-list-renderer {
-    background: var(--ytal-background) !important;
-  }
-
-  /* Cosmetics - Donation */
-  
-  #header-section.ytd-donation-shelf-renderer,
-  #donate-section.ytd-donation-shelf-renderer,
-  #creator-messages-section.ytd-donation-shelf-renderer, 
-  #nonprofit-section.ytd-donation-shelf-renderer,
-  #collapse-controls-section.ytd-donation-shelf-renderer {
-    background: none;
-  }
-
-  /* Cosmetics - Transcription */
-
-  ytd-transcript-search-panel-renderer,
-  ytd-transcript-footer-renderer,
-  ytd-transcript-segment-list-renderer {
-    background: none;
-  }
-  ytd-transcript-segment-list-renderer {
-    @include scrollbar-light-thin();
-  }
-  &[dark] ytd-transcript-segment-list-renderer {
-    @include scrollbar-dark-thin();
-  }
-
-  /* Cosmetics - Text visibility */
-
-  
-  ytd-watch #top > #player {
-    z-index: 2;
-  }
-
-  .header.ytd-playlist-panel-renderer {
-    background: var(--ytal-background) !important;
-  }
-
-  .playlist-items.ytd-playlist-panel-renderer {
-    @include scrollbar-light-thin();
-  }
-
-  ytd-playlist-panel-renderer:not([within-miniplayer]) #container.ytd-playlist-panel-renderer,
-  ytd-playlist-panel-renderer:not([within-miniplayer]) #items.ytd-playlist-panel-renderer,
-  .playlist-items.ytd-playlist-panel-renderer,
-  ytd-live-chat-frame #show-hide-button.ytd-live-chat-frame > ytd-button-renderer.ytd-live-chat-frame,
-  yt-chip-cloud-renderer {
-    background: none !important;
-  }
-
-  ytd-playlist-panel-video-renderer,
-  ytd-macro-markers-list-item-renderer {
-    &[selected],
-    &[active],
-    &:hover:not(.dragging) {
-      background-color: var(--ytal-background-10-percent) !important;
-      backdrop-filter: saturate(1.1);
-    }
-    &[selected],
-    &[active] {
-      #index.ytd-playlist-panel-video-renderer,
-      #byline.ytd-playlist-panel-video-renderer,
-      #video-info.ytd-playlist-panel-video-renderer {
-        color: rgba(var(--yt-spec-text-secondary), .8) !important;
-      }
-      #video-title.ytd-playlist-panel-video-renderer {
-        color: rgb(0, 0, 0) !important;
-      }
-    }
-  }
-
-  ytd-macro-markers-list-item-renderer {
-    &,
-    &:hover,
-    &[active] {
-      h4.ytd-macro-markers-list-item-renderer {
-        color: inherit !important;
-      }
-      #time.ytd-macro-markers-list-item-renderer {
-        color: var(--yt-spec-themed-blue) !important;
-      }
-    }
-  }
-
-  yt-chip-cloud-chip-renderer:not([selected]) .ytChipShapeChip {
-    background: var(--ytal-background) !important;
-  }
-  yt-chip-cloud-chip-renderer[selected] .ytChipShapeChip {
-    background: var(--yt-spec-inverted-background) !important;
-    color: var(--yt-spec-text-primary-inverse) !important;
-  }
-  
-  ytd-watch-metadata {
-    .yt-spec-button-shape-next--tonal {
-      &.yt-spec-button-shape-next--mono:not(:hover):not(:focus) {
-        background: var(--ytal-background) !important;
-      }
-      &.yt-spec-button-shape-next--disabled {
-        background: var(--ytal-background) !important;
-        color: rgba(
-          var(--ytal-text-rgb), 
-          var(--ytal-text-rgb), 
-          var(--ytal-text-rgb),
-          .35
-        ) !important;
-      }
-    }
-  }
-
-  .ytd-menu-title-renderer.ytd-add-to-playlist-renderer {
-    color: var(--yt-spec-text-primary) !important;
-  }
-
-  #primary #description.ytd-watch-metadata,
-  #primary.ytd-watch-fixie ytd-comments-entry-point-header-renderer {
-    background: var(--ytal-background) !important;
-  }
-  
-  $comments-reply-input: '#input-container.ytd-commentbox .unfocused-line.tp-yt-paper-input-container';
-  #{$comments-reply-input} {
-    border-bottom-color: rgba(20,20,20,.5);
-  }
-    
-  &[dark] {
-    .playlist-items.ytd-playlist-panel-renderer {
-      @include scrollbar-dark-thin();
-    }
-
-    #playlist #header-description a,
-    #index.ytd-playlist-panel-video-renderer,
-    span.yt-view-count-renderer {
-      color: rgba(255, 255, 255, 0.882) !important;
-    }
-  
-    ytd-playlist-panel-video-renderer {
-      &[selected],
-      &:hover:not(.dragging) {
-        backdrop-filter: saturate(1.15);
-      }
-      &[selected] {
-        #video-title.ytd-playlist-panel-video-renderer {
-          color: rgb(255,255,255) !important;
-        }
-      }
-    }
-  
-    #{$comments-reply-input} {
-      border-bottom-color: rgba(255, 255, 255,.5);
+  .bpx-state-mirror .bpx-player-video-wrap {
+    > .ambientlight__video-overlay,
+    > .ambientlight__video-debanding {
+      transform: rotateY(180deg);
     }
   }
 
@@ -1373,14 +357,14 @@ html[data-ambientlight-enabled] {
     height: 100%;
   }
 
-  &:not([dark]) {
+  &:not(.night-mode) {
     .ambientlight__shadow {
       filter: invert(1);
     }
   }
 
   .ambientlight__container {
-    z-index: -1; // Fixes glitching in some video's in the small view in Firefox
+    z-index: -1;
     top: 0;
     left: 0;
     min-height: 100svh;
@@ -1389,7 +373,7 @@ html[data-ambientlight-enabled] {
     pointer-events: none;
     user-select: none;
     contain: strict;
-    // will-change: transform; // Improves resizing performance, but reduces cpu rendering performance
+    background: var(--ytal-page-background);
 
     &::before {
       content: var(--ytal-debanding-content, none);
@@ -1404,8 +388,20 @@ html[data-ambientlight-enabled] {
       mix-blend-mode: var(--ytal-debanding-blend-mode, none);
     }
   }
-  body[data-ambientlight-fixed] {
+
+  // In (web) fullscreen the ambient light is placed inside the player
+  .bpx-player-container {
     .ambientlight__container {
+      min-height: 0;
+      background: #000;
+    }
+    .ambientlight__shadow {
+      filter: none;
+    }
+  }
+
+  body[data-ambientlight-fixed] {
+    > .ambientlight .ambientlight__container {
       position: fixed !important;
       height: 100svh;
     }
@@ -1429,10 +425,6 @@ html[data-ambientlight-enabled] {
     user-select: none;
   }
 
-  // .ambientlight__clip {
-  //   overflow: hidden;
-  // }
-
   .ambientlight__video-shadow {
     display: none;
   }
@@ -1440,7 +432,6 @@ html[data-ambientlight-enabled] {
   .ambientlight__projector {
     contain: strict;
     background: none; //Prevent black canvas edge lines on Firefox
-    /* image-rendering: pixelated; */
   }
 
   // Has -20% performance impact
@@ -1462,7 +453,7 @@ html[data-ambientlight-enabled] {
     contain: strict;
     will-change: transform;
     animation: ambientlight-chromium-bug-video-jitter-workaround linear 60s infinite;
-  
+
     @keyframes ambientlight-chromium-bug-video-jitter-workaround {
       0% {
         opacity: .0000000001;
@@ -1473,143 +464,248 @@ html[data-ambientlight-enabled] {
     }
   }
 
+  // Stretched over the video element (object-fit is the same as the video element)
   .ambientlight__video-overlay {
     position: absolute;
+    top: 0;
+    left: 0;
     display: block;
-    width: 1px;
-    height: 1px;
-    margin-top: 0px;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
     pointer-events: none;
     user-select: none;
-    transform-origin: center center;
-    transform: var(--video-transform);
-    transition: opacity .25s .25s;//, margin-top .2s ease-out;
+    transition: opacity .25s .25s;
 
     // Prevent Firefox from stopping the video rendering
     opacity: .9899999; // Firefox
 
     &--hide {
       opacity: 0.0000001; //Avoid memory leak https://codepen.io/wesselkroos/pen/MWWorLW
-      transition: opacity .001s;//, margin-top .2s ease-out;
+      transition: opacity .001s;
     }
+  }
+  video.ambientlight__chromium-bug-direct-video-overlay-workaround + .ambientlight__video-overlay {
+    // Prevent Chromium from reporting dropped video frames
+    opacity: .9989999; // Chromium
 
-    @at-root html[data-ambientlight-enabled] .html5-main-video.ambientlight__chromium-bug-direct-video-overlay-workaround + .ambientlight__video-overlay {
-      // Prevent Chromium from reporting dropped video frames and YouTube from lowering the video quality
-      opacity: .9989999; // Chromium
-
-      &--hide {
-        opacity: 0.0000001; //Avoid memory leak https://codepen.io/wesselkroos/pen/MWWorLW
-      }
+    &--hide {
+      opacity: 0.0000001; //Avoid memory leak https://codepen.io/wesselkroos/pen/MWWorLW
     }
   }
 
   .ambientlight__video-debanding {
     position: absolute;
+    top: 0;
+    left: 0;
     display: block;
-    width: 1px;
-    height: 1px;
-    margin-top: 0px;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
     user-select: none;
 
-    transform-origin: center center;
-    transform: var(--video-transform);
-    
     background: var(--ytal-video-debanding-background, none);
     opacity: var(--ytal-video-debanding-opacity, 0);
     mix-blend-mode: var(--ytal-debanding-blend-mode, none);
   }
 
-  /* Immersive mode */
+  /* Page header */
 
-  &[data-ambientlight-immersive] {
-    #page-manager.ytd-app {
-      margin-top: 85px;
-    }
-    @mixin theater {
-      height: calc(100vh - 169px) !important;
-      max-height: calc(100vh - 169px) !important;
-      margin-bottom: 84px !important;
+  [data-ambientlight-masthead] {
+    .bili-header__bar {
+      transition: background-color .15s, opacity .15s ease-out;
     }
 
-    @include ytd-watch {
-      &[theater],
-      &[full-bleed-player] {
-        #player-theater-container, // Old theater view
-        #player-wide-container, // Second old theater view
-        // #player-full-bleed-container // Third old theater view
-        #full-bleed-container,
-        #player-full-bleed-container,
-        #player.ytd-watch-fixie // kevlar_watch_fixie: true
-        {
-          @include theater;
-        }
-      }
+    &.ytal-header-transparent .bili-header__bar {
+      // Sass does not support the relative color syntax
+      background-color: unquote('rgb(from var(--bg1_float) r g b / calc(var(--ytal-fill-opacity, 1) * 2 - 1))') !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
     }
 
-    // // Covers any future updates to the html structure, but is expensive, for ytd-watch-flexy[full-bleed-player] div#full-bleed-container
-    // @supports selector(:has(*)) {
-    //   ytd-watch-flexy {
-    //     &[theater]
-    //     &[full-bleed-player] {
-    //       > div:has(ytd-player) {
-    //         @include theater;
-    //       }
-    //     }
-    //   }
-    // }
-
-    #masthead-container {
-      // &:not(.ytal-header-transparent) {
-      //   will-change: opacity; // conflicts with backdrop-filter, and reduces cpu rendering performance
-      // }
-      
-      @supports selector(:has(*)) {
-        &.at-top:not(:hover):not(:has(:focus-visible)) {
-          transition: opacity .15s ease-out;
-          opacity: 0;
-        }
-        &.at-top:not(:hover):has(:focus-visible):not(:has(ytd-searchbox:focus-within, yt-searchbox:focus-within)) {
-          opacity: 1;
-          transition: none;
-          animation: masthead-focus-visible-fade-out 3s forwards;
-          @keyframes masthead-focus-visible-fade-out {
-            0% {
-              opacity: 1;
-            }
-            90% {
-              opacity: 1;
-            }
-            100% {
-              opacity: 0;
-            }
-          }
-        }
-      }
-      @supports not (selector(:has(*))) {
-        &.at-top:not(:hover):not(:focus-within) {
-          transition: opacity .15s ease-out;
-          opacity: 0;
-        }
-      }
+    img {
+      opacity: var(--ytal-image-opacity, 1);
     }
   }
 
-  /* Markers */
+  /* Immersive: Transparent page header while the page is scrolled to the top */
 
-  #contents.ytd-macro-markers-list-renderer {
-    @include scrollbar-light-thin();
+  &[data-ambientlight-immersive-header] [data-ambientlight-masthead] {
+    .bili-header__bar {
+      transition: background-color .2s, box-shadow .2s, opacity .15s ease-out;
+    }
+
+    // The search bar keeps the style of Bilibili when it has focus, because the search suggestions are attached below it
+    #nav-searchform:not(.is-focus) {
+      background: var(--ytal-blend-input-background) !important;
+      border-color: var(--ytal-blend-border) !important;
+    }
+
+    &.at-top .bili-header__bar {
+      background: transparent !important;
+      box-shadow: none !important;
+      text-shadow: 0 0 4px rgba(0, 0, 0, .6);
+    }
+
+    // Keep the content that is scrolled behind the header readable
+    &:not(.at-top) .bili-header__bar {
+      // Sass does not support the relative color syntax
+      background-color: unquote('rgb(from var(--bg1_float) r g b / .75)') !important;
+      backdrop-filter: blur(20px) saturate(1.5);
+    }
   }
-  &[dark] #contents.ytd-macro-markers-list-renderer {
-    @include scrollbar-dark-thin();
+  &:not(.night-mode)[data-ambientlight-immersive-header] [data-ambientlight-masthead].at-top .bili-header__bar {
+    text-shadow: 0 0 4px rgba(255, 255, 255, .8);
+  }
+
+  /* Immersive: Hide the page header in the wide view while the page is scrolled to the top */
+
+  &[data-ambientlight-immersive] [data-ambientlight-masthead].at-top {
+    .bili-header__bar:not(:hover):not(:focus-within) {
+      opacity: 0;
+    }
+  }
+
+  /* Immersive: Blend in the danmaku list and playlist next to the video */
+
+  &[data-ambientlight-transparent-side-panels] {
+    // Only the outer box gets a translucent background, because stacked backgrounds would look opaque again
+    #danmukuBox .danmaku-wrap,
+    .video-pod {
+      background-color: var(--ytal-background) !important;
+      box-shadow: inset 0 0 0 1px var(--ytal-blend-border) !important;
+    }
+    #danmukuBox {
+      .bpx-docker-minor,
+      .bui-collapse-header,
+      .bui-collapse-body,
+      .bpx-player-dm-function,
+      .bpx-player-dm-wrap {
+        background-color: transparent !important;
+      }
+    }
+
+    // Buttons and the playing video inside the boxes.
+    // The active class is on .simple-base-item in collections and on .video-pod__item in multi part videos
+    #danmukuBox .bpx-player-dm-btn-history,
+    .video-pod :is(.simple-base-item, .video-pod__item).active,
+    .rcmd-tab .rec-footer {
+      background-color: var(--ytal-background) !important;
+    }
+
+    // Follow button of the uploader. (The charge button is already transparent)
+    .upinfo-btn-panel .default-btn:not(.new-charge-btn) {
+      background: var(--ytal-background) !important;
+      box-shadow: inset 0 0 0 1px var(--ytal-blend-border);
+    }
+    // Keep the text of the followed state readable on the translucent background
+    .upinfo-btn-panel .follow-btn:not(.not-follow) {
+      color: var(--text2) !important;
+    }
+
+    // Subscribe button of a collection in the subscribed state. (The unsubscribed state is already transparent)
+    .video-pod .subscribe-btn.subscribed {
+      background-color: var(--ytal-background) !important;
+      border-color: var(--ytal-blend-border) !important;
+    }
+    // Keep a tint of the Bilibili blue when the uploader is not followed yet.
+    // Sass does not support the relative color syntax
+    .upinfo-btn-panel .follow-btn.not-follow {
+      background: unquote('rgb(from var(--brand_blue) r g b / .35)') !important;
+      box-shadow: inset 0 0 0 1px unquote('rgb(from var(--brand_blue) r g b / .7)');
+    }
+  }
+
+  /* Immersive: Blend in the tags of the video and the comment box */
+
+  &[data-ambientlight-transparent-page-content] {
+    .video-tag-container .tag-panel .tag-link {
+      background: var(--ytal-background) !important;
+      box-shadow: inset 0 0 0 1px var(--ytal-blend-border);
+    }
+
+    // Activity vote and promotion banner cards below the description.
+    // They use --bg1 for the card background and for the gradient over the cover image
+    .video-resource-list {
+      --bg1: var(--ytal-background);
+      --line_regular: var(--ytal-blend-border);
+    }
+
+    // The comment box is rendered inside the shadow roots of the comments web components.
+    // CSS variables are inherited into shadow roots. These variables are only used by the
+    // comment boxes in the comments (#editor, #edit of the login prompt, .tool-btn and #input).
+    // --bg1 is also used by the mask over the comments when logged out (#limit-mask-wall) and by
+    // the mention popover. So it is set to the opaque page background instead of a translucent color.
+    bili-comments {
+      --bg1: var(--ytal-page-background);
+      --bg3: var(--ytal-blend-input-background);
+      --Ga1: var(--ytal-blend-border);
+      --bili-comment-textarea-bg: transparent;
+    }
+  }
+
+  /* Immersive: Blend in the danmaku input bar below the video */
+
+  &[data-ambientlight-transparent-sending-bar] .bpx-player-sending-area {
+    // Divider line above the bar
+    &::before {
+      background: transparent !important;
+    }
+
+    .bpx-player-sending-bar {
+      background: transparent !important;
+      text-shadow: var(--ytal-text-shadow);
+    }
+
+    .bpx-player-video-inputbar {
+      background: var(--ytal-blend-input-background) !important;
+      box-shadow: inset 0 0 0 1px var(--ytal-blend-border);
+      text-shadow: none;
+    }
+
+    // The send button keeps the blue color when a danmaku can be sent
+    .bpx-player-dm-btn-send.bui-disabled .bui-button-blue {
+      background-color: var(--ytal-background) !important;
+    }
+  }
+  &:not(.night-mode)[data-ambientlight-transparent-sending-bar] .bpx-player-sending-area .bpx-player-sending-bar {
+    text-shadow: var(--ytal-text-shadow-inverted);
   }
 }
 
+
 /* Settings */
 
+// Bilibili brand blue
+$accent: #00aeec;
+
 .ytal-bezel {
+  // Replaces the .ytp-bezel styles of the YouTube player
+  position: absolute;
+  z-index: 1002;
+  left: 50%;
+  top: 50%;
+  width: 52px;
+  height: 52px;
+  margin-left: -26px;
+  margin-top: -26px;
+  border-radius: 26px;
+  background: rgba(0, 0, 0, .5);
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+  animation: ytal-bezel-fadeout .5s linear 1 normal forwards;
   pointer-events: none;
   contain: size style layout paint;
+
+  @keyframes ytal-bezel-fadeout {
+    0% {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+      transform: scale(2);
+    }
+  }
 
   &--no-animation {
     animation: none !important;
@@ -1617,13 +713,17 @@ html[data-ambientlight-enabled] {
   }
 
   .ytp-svg-fill {
+    fill: #fff;
     font-size: 30px;
   }
 
   .ytp-bezel-icon {
     position: relative;
+    width: 36px;
+    height: 36px;
+    margin: 8px;
   }
-  
+
   .ytp-bezel-icon::before {
     content: '';
     display: block;
@@ -1637,11 +737,6 @@ html[data-ambientlight-enabled] {
     outline: 3px solid #111;
     transform: rotate(-45deg);
     background: #fff;
-
-    .ytp-big-mode & {
-      height: 4px;
-      top: calc(50% - 2px);
-    }
   }
 
   &--strike .ytp-bezel-icon::before {
@@ -1649,26 +744,38 @@ html[data-ambientlight-enabled] {
   }
 }
 
-
-.html5-video-player:not(.ytp-delhi-modern).ytp-ambientlight-settings-shown {
-  .ytp-chrome-bottom {
+// Keep the controls of the player visible while the settings menu is open
+.bpx-player-container.ytp-ambientlight-settings-shown {
+  .bpx-player-control-bottom,
+  .bpx-player-control-mask,
+  .bpx-player-control-top {
     opacity: 1 !important;
-  }
-  .ytp-gradient-bottom {
-    opacity: 1 !important;
-    display: block !important;
+    visibility: visible !important;
   }
 }
 
 .ytpa-ambientlight-settings-menu {
+  // Replaces the .ytp-popup .ytp-settings-menu .ytp-rounded-menu styles of the YouTube player
   @include scrollbar-dark-thin();
+  position: absolute;
   contain: content;
+  box-sizing: border-box;
   width: 320px;
+  max-width: calc(100% - 24px);
   max-height: calc(100% - 70px);
   overflow-y: auto !important;
   right: 12px;
-  bottom: 61px ;
-  z-index: 1001 !important; // above ad
+  bottom: 61px;
+  z-index: 1001 !important; // above the danmaku and the controls
+  border-radius: 12px;
+  background: rgba(28, 28, 28, .9);
+  color: #eee;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, "PingFang TC", "Microsoft JhengHei", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: 12px;
+  line-height: normal;
+  text-align: left;
+  text-shadow: 0 0 2px rgba(0, 0, 0, .5);
+  user-select: none;
   opacity: 0;
   cursor: default;
   transition: none;
@@ -1676,13 +783,20 @@ html[data-ambientlight-enabled] {
     will-change: scroll-position !important; // Improves scrolling performance
   }
 
-  .ytp-delhi-modern & {
-    max-height: calc(100% - 90px);
+  .bpx-player-container[data-screen="full"] &,
+  .bpx-player-container[data-screen="web"] & {
+    bottom: 90px;
+    max-height: calc(100% - 110px);
   }
 
-  .ytp-big-mode & {
-    width: 490px;
-    max-height: calc(100% - 140px);
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  a {
+    text-decoration: none;
   }
 
   &.is-visible {
@@ -1720,142 +834,151 @@ html[data-ambientlight-enabled] {
 
   .ytp-panel {
     position: relative;
+    min-width: 250px;
     overflow-x: visible;
     overflow-y: visible;
+  }
+
+  .ytp-panel-menu {
+    width: 100%;
+    padding: 8px 0;
+  }
+
+  .ytp-menuitem {
+    cursor: pointer;
+    outline: none;
+    &:not([aria-disabled="true"]):not(.ytpa-menuitem--header):hover {
+      background-color: rgba(255, 255, 255, .1);
+    }
+  }
+
+  .ytp-menuitem-label {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .ytp-menuitem-content {
+    padding: 0 15px;
+    text-align: right;
+    font-size: 12px;
+  }
+
+  // The toggle switch of a checkbox setting
+  .ytp-menuitem-toggle-checkbox {
+    position: relative;
+    height: 14px;
+    width: 36px;
+    border-radius: 14px;
+    background-color: rgba(255, 255, 255, .3);
+    transition: all .08s cubic-bezier(.4, 0, 1, 1);
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 20px;
+      width: 20px;
+      margin-top: -3px;
+      border-radius: 20px;
+      background-color: #bdbdbd;
+      box-shadow: 0 1px 5px 0 rgba(0, 0, 0, .6);
+      transition: all .08s cubic-bezier(.4, 0, 1, 1);
+    }
+  }
+  .ytp-menuitem[aria-checked="true"] .ytp-menuitem-toggle-checkbox::after {
+    background-color: #fff;
+    transform: translateX(16px);
   }
 }
 
 .ytp-ambientlight-settings-button {
-  position: relative !important;
-  overflow: initial !important;
-  font-size: calc(100% / 1.09) !important;
-  line-height: normal !important;
-  contain: size;
+  position: relative;
+  color: hsla(0, 0%, 100%, .8);
+  cursor: pointer;
 
-  &::after {
-    content: '';
-    position: absolute;
-    top: 10px;
-    right: 5px;
-    height: 9px;
-    width: 13px;
-    background: #007cc3;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 13 9'%3E%3Cg transform='translate(1.5, 0.5)'%3E%3Cpath d='M2.5 1.5v1h2v-1h-2m4 0v5h3v-1h-2v-4h-1m-5 1v4h1v-1h2v1h1v-4h-1v2h-2v-2h-1' fill='%23fff' /%3E%3Cpath d='M2.5 3v.5h2v-1h-2V3m0 2.5v1h2v-1h-2m-1 1v1h1v-1h-1m3 .5v.5h1v-1h-1V7m2-.5v1h3v-1h-3' fill-opacity='0.6471' fill='%23000' /%3E%3C/g%3E%3C/svg%3E");
-    border-radius: 1px;
-    line-height: normal;
-  }
-  .ytp-big-mode & {
-    &::after {
-      content: 'AL';
-      top: 15px;
-      right: 6px;
-      height: auto;
-      width: auto;
-      background-image: none;
-      padding: 2px 3px;
-      border-radius: 1.5px;
-      font-family: Verdana,sans-serif;
-      font-size: 10px;
-      font-weight: bold;
-      color: #fff;
-      text-shadow: 0 2px 0 rgba(0,0,0,0.6);
-      pointer-events: none;
-    }
-
-    /* is2025PlayerUI */
-    &:has(svg[viewBox="0 0 24 24"])::after {
-      top: 4px;
-      right: 5px;
-    }
+  &:hover,
+  &:focus-visible,
+  &[aria-expanded="true"] {
+    color: #fff;
   }
 
-  &.has-warning {
-    &::before {
-      content: '' !important;
-      position: absolute !important;
-      z-index: 1 !important;
-      top: 16px !important;
-      left: 11px !important;
-      display: block !important;
-      width: 14px !important;
-      height: 14px !important;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='100' width='100'%3E%3Cpolygon points='50,0 0,90 100,90' class='triangle' fill='%23884400ff' /%3E%3Cpolygon points='48.25,3 3,85 94,85' fill='%23f60' /%3E%3Ctext x='56' y='79' dominant-baseline='middle' text-anchor='middle' font-weight='bold' font-size='70px' fill='%2300000000'%3E!%3C/text%3E%3Ctext x='50' y='65' dominant-baseline='middle' text-anchor='middle' font-weight='bold' font-size='70px' fill='%23fff'%3E!%3C/text%3E%3C/svg%3E") !important;
-      background-size: contain !important;
-      background-position: center !important;
-      background-repeat: no-repeat !important;
-      pointer-events: none !important;
-      
-      .ytp-large-width-mode & {
-        left: 17px !important;
-      }
+  .bpx-common-svg-icon {
+    display: inline-flex;
+    height: 22px;
+    vertical-align: top;
 
-      .ytp-big-mode & {
-        left: 17px !important;
-        top: 16px !important;
-        width: 16px !important;
-        height: 16px !important;
-      }
+    .bpx-player-container[data-screen="full"] &,
+    .bpx-player-container[data-screen="web"] & {
+      height: 28px;
+      margin-top: 2px;
     }
-  }
-
-  &.has-updates:not(.has-warning) {
-    &::before {
-      content: '' !important;
-      position: absolute !important;
-      z-index: 1 !important;
-      left: 13px !important;
-      top: 13px !important;
-      display: block !important;
-      width: 7px !important;
-      height: 7px !important;
-      border-radius: 3.5px !important;
-      background: #22ff00 !important;
-      box-shadow: rgba(0, 0, 0, 0.6) 0px 0px 0px 1px !important;
-      pointer-events: none !important;
-
-      .ytp-big-mode & {
-        left: 12px !important;
-        top: 13px !important;
-        width: 10px !important;
-        height: 10px !important;
-        border-radius: 5px !important;
-        box-shadow: rgba(0, 0, 0, .7) 0 0 2px 1px !important;
-      }
-    }
-  }
-
-  html:not([data-ambientlight-enabled]) &,
-  &.is-loading {
-    &::after {
-      background-color: #555;
-    }
-  }
-
-  .ytp-tooltip-text {
-    white-space: pre;
   }
 
   svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
     transition: transform .1s cubic-bezier(0.4,0.0,1,1);
   }
   &[aria-expanded="true"] svg {
-    transform: rotateZ(30deg);
+    transform: scale(1.1);
+  }
+
+  // The rays are dimmed while the ambient light is disabled or loading
+  html:not([data-ambientlight-enabled]) &,
+  &.is-loading {
+    .ytp-ambientlight-settings-button__rays {
+      opacity: .35;
+    }
+  }
+
+  &.has-warning::before,
+  &.has-updates:not(.has-warning)::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    top: -3px;
+    right: 3px;
+    display: block;
+    pointer-events: none;
+  }
+
+  &.has-warning::before {
+    width: 12px;
+    height: 12px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='100' width='100'%3E%3Cpolygon points='50,0 0,90 100,90' class='triangle' fill='%23884400ff' /%3E%3Cpolygon points='48.25,3 3,85 94,85' fill='%23f60' /%3E%3Ctext x='56' y='79' dominant-baseline='middle' text-anchor='middle' font-weight='bold' font-size='70px' fill='%2300000000'%3E!%3C/text%3E%3Ctext x='50' y='65' dominant-baseline='middle' text-anchor='middle' font-weight='bold' font-size='70px' fill='%23fff'%3E!%3C/text%3E%3C/svg%3E");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  &.has-updates:not(.has-warning)::before {
+    width: 7px;
+    height: 7px;
+    border-radius: 3.5px;
+    background: #22ff00;
+    box-shadow: rgba(0, 0, 0, 0.6) 0px 0px 0px 1px;
   }
 }
 
 .ytp-ambientlight-settings-button-tooltip {
-  white-space: nowrap;
+  position: absolute;
+  bottom: calc(100% + 16px);
   left: 50%;
-  margin-top: -23px;
-  transform: translateX(-50%) translateY(-100%) !important;
+  padding: 6px 8px;
+  border-radius: 4px;
+  background: rgba(21, 21, 21, .9);
+  color: #fff;
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+  white-space: pre;
+  transform: translateX(-50%);
   opacity: 0 !important;
   transition: none !important;
   pointer-events: none;
   user-select: none;
-
-  .ytp-big-mode & {
-    margin-top: -37px;
-  }
 
   .ytp-ambientlight-settings-button:not([aria-expanded="true"]):hover & {
     opacity: 1 !important;
@@ -1872,11 +995,11 @@ html[data-ambientlight-enabled] {
   .ytpa-feedback-link__text {
     display: block;
     padding: 10px 15px;
-    color: #008cff;
+    color: $accent;
     font-weight: bold;
     font-size: 11px;
     &:hover {
-      color: #5ebfff;
+      color: $accent;
       text-decoration: underline;
     }
 
@@ -1907,7 +1030,7 @@ html[data-ambientlight-enabled] {
     cursor: help;
     &:hover,
     &:focus-visible {
-      border-color: #30acf3;
+      border-color: $accent;
       border-top-color: transparent;
     }
     .ytp-big-mode & {
@@ -1932,7 +1055,7 @@ html[data-ambientlight-enabled] {
     &:focus-visible {
       &::before,
       &::after {
-        border-color: #30acf3;
+        border-color: $accent;
       }
     }
     &::before {
@@ -2005,7 +1128,7 @@ html[data-ambientlight-enabled] {
     &:hover,
     &:focus-visible {
       transform: rotate(-180deg);
-      border-color: #30acf3;
+      border-color: $accent;
       border-top-color: transparent;
     }
     .ytp-big-mode & {
@@ -2034,7 +1157,7 @@ html[data-ambientlight-enabled] {
     &:focus-visible {
       &::before,
       &::after {
-        background: #30acf3;
+        background: $accent;
       }
     }
     &::after {
@@ -2045,23 +1168,6 @@ html[data-ambientlight-enabled] {
         width: 8px;
         height: 2px;
         margin: -8px 0px 0px 12px;
-      }
-    }
-  }
-
-  .ytpa-donate-link {
-    &:not(:hover) {
-      filter: grayscale(1) brightness(0.75) contrast(2.5);
-    }
-
-    &__image {
-      margin-top: -4px;
-      margin-bottom: -6px;
-
-      .ytp-big-mode & {
-        margin-top: -8px;
-        margin-bottom: -8px;
-        height: 33px;
       }
     }
   }
@@ -2169,7 +1275,7 @@ html[data-ambientlight-enabled] {
     .ytp-menuitem-label {
       position: relative;
       &::before {
-        content: 'N';
+        content: '新';
         position: absolute;
         pointer-events: none;
         user-select: none;
@@ -2202,7 +1308,7 @@ html[data-ambientlight-enabled] {
         }
       }
       &::after {
-        content: 'New';
+        content: '新功能';
         position: absolute;
         pointer-events: none;
         user-select: none;
@@ -2247,10 +1353,10 @@ html[data-ambientlight-enabled] {
       &::after {
         visibility: visible;
         opacity: 1;
-        max-width: 28px;
+        max-width: 40px;
         transition: visibility 0s .75s, opacity .125s .9s ease-out, max-width .5s 1s ease-out;
         .ytp-big-mode & {
-          max-width: 34px;
+          max-width: 48px;
         }
       }
     }
@@ -2258,20 +1364,20 @@ html[data-ambientlight-enabled] {
   .ytpa-menuitem--experimental {
     .ytp-menuitem-label {
       &::before {
-        content: 'E';
+        content: '實';
         background: #fa0;
       }
       &::after {
-        content: 'Experimental';
+        content: '實驗性';
         background: #fa0;
       }
     }
     
     &:hover .ytp-menuitem-label {
       &::after {
-        max-width: 67px;
+        max-width: 40px;
         .ytp-big-mode & {
-          max-width: 85px;
+          max-width: 48px;
         }
       }
     }
@@ -2361,7 +1467,7 @@ html[data-ambientlight-enabled] {
   .ytpa-menuitem--info {
     &,
     &:hover {
-      background: #007cc3 !important;
+      background: $accent !important;
     }
 
     &::before {
@@ -2475,10 +1581,10 @@ html[data-ambientlight-enabled] {
       color: #ffffff88;
     }
     &:hover a {
-      color: #30acf3;
+      color: $accent;
     }
     a:hover {
-      color: #5ebfff;
+      color: $accent;
       text-decoration: underline;
     }
   }
@@ -2492,7 +1598,7 @@ html[data-ambientlight-enabled] {
     text-align: center;
     cursor: text;
     &:hover {
-      color: #30acf3;
+      color: $accent;
     }
     &:focus {
       background: #000;
@@ -2582,7 +1688,7 @@ html[data-ambientlight-enabled] {
     }
 
     &:hover + .ytp-menuitem-value {
-      color: #30acf3;
+      color: $accent;
     }
 
     &:focus {
@@ -2609,7 +1715,7 @@ html[data-ambientlight-enabled] {
     margin: 3px 0;
   }
   .ytp-menuitem[aria-checked="true"] .ytp-menuitem-toggle-checkbox {
-    background-color: #007cc3 !important;
+    background-color: $accent !important;
   }
   .ytp-menuitem[aria-disabled="true"] .ytp-menuitem-toggle-checkbox {
     background-color: #333 !important;
@@ -2717,14 +1823,14 @@ html[data-ambientlight-enabled] {
 
           $shadow: 0 1px 5px 0 rgba(0,0,0,0.6);
           @for $i from 1 through 150 {
-            $shadow: #{$shadow}, #{(-2 * $i)}px 0 0px -5px #007cc3;
+            $shadow: #{$shadow}, #{(-2 * $i)}px 0 0px -5px $accent;
           }
           box-shadow: $shadow;
   
           .ytp-big-mode & {
             $shadow: 0 1px 5px 0 rgba(0,0,0,0.6);
             @for $i from 1 through 220 {
-              $shadow: #{$shadow}, #{(-2 * $i)}px 0 0px -8px #007cc3;
+              $shadow: #{$shadow}, #{(-2 * $i)}px 0 0px -8px $accent;
             }
             box-shadow: $shadow;
           }
@@ -2844,7 +1950,9 @@ html[data-ambientlight-enabled] {
 }
 
 
-/* injected.js Ambientlight.updateStyles variables */
+
+
+/* Ambientlight.updateStyles variables */
 
 html[data-ambientlight-enabled] {
   // Video shadow
@@ -2853,598 +1961,45 @@ html[data-ambientlight-enabled] {
     box-shadow: var(--ytal-video-shadow-box-shadow, none) !important;
   }
 
-  // Image opacity
-  @include ytd-watch {
-    $not-hover: ':not(:hover):not(:focus-within)';
-
-    ytd-video-owner-renderer#{$not-hover} #avatar,
-    ytd-comment-simplebox-renderer#{$not-hover} #author-thumbnail, // Form
-    ytd-comment-renderer#{$not-hover} #author-thumbnail,
-    ytd-comment-replies-renderer .expander-header#{$not-hover} #creator-thumbnail,
-    .ytd-playlist-panel-renderer#{$not-hover} #thumbnail,
-    .ytd-compact-autoplay-renderer#{$not-hover} #thumbnail,
-    ytd-watch-next-secondary-results-renderer ytd-compact-video-renderer#{$not-hover} #thumbnail,
-    ytd-watch-next-secondary-results-renderer ytd-compact-radio-renderer#{$not-hover} .modern-collection-parent,
-    ytd-watch-next-secondary-results-renderer ytd-compact-playlist-renderer#{$not-hover} ytd-playlist-thumbnail,
-    ytd-watch-next-secondary-results-renderer ytd-reel-item-renderer#{$not-hover} #thumbnail,
-    ytd-watch-next-secondary-results-renderer .yt-lockup-view-model-wiz#{$not-hover} .yt-lockup-view-model-wiz__content-image,
-    ytd-watch-next-secondary-results-renderer ytm-shorts-lockup-view-model#{$not-hover} .shortsLockupViewModelHostThumbnail,
-    ytd-rich-item-renderer#{$not-hover} #thumbnail {
-      opacity: var(--ytal-image-opacity) !important;
-    }
+  // Images opacity
+  $not-hover: ':not(:hover):not(:focus-within)';
+  .up-panel-container#{$not-hover} .up-avatar-wrap,
+  .video-page-card-small#{$not-hover} .pic-box,
+  .video-pod__item#{$not-hover} .cover,
+  .ad-report#{$not-hover} img {
+    opacity: var(--ytal-image-opacity) !important;
   }
-  
 
-  // All shadows
-  
-  .ytal-header-shadow:not([data-ambientlight-text-shadow]) #container.ytd-masthead {
-    &.ytal-header-transparent,
-    &.at-top {
-      transition: filter .15s;
-    }
-  }
+  // Shadows (and optionally only text shadows) that keep the content around the video readable
   @mixin filter-and-text-shadow-selectors {
-    .ytal-header-shadow.at-top:not([data-ambientlight-text-shadow]) #container.ytd-masthead {
+    [data-ambientlight-masthead].ytal-header-shadow.at-top:not([data-ambientlight-text-shadow]) .bili-header__bar {
       @content;
     }
-    @include ytd-watch {
-      // #below,
-      #title.ytd-watch-metadata,
-      ytd-info-panel-container-renderer,
-      ytd-video-owner-renderer.ytd-watch-metadata,
-      #top-row.ytd-watch-metadata button.yt-spec-button-shape-next:not(.yt-spec-button-shape-next--filled) > *,
-      #middle-row.ytd-watch-metadata,
-      #description-inner.ytd-watch-metadata,
-      ytd-ticket-shelf-renderer,
-      ytd-comments,
-      #header.ytd-comments-entry-point-header-renderer, // fixie
-      #content.ytd-comments-entry-point-header-renderer, // fixie
-      ytd-watch-metadata ytd-rich-metadata-renderer > *,
-      ytd-expandable-metadata-renderer,
 
-      // #secondary,
-      #secondary-inner > *:not(ytd-playlist-panel-renderer):not(#panels):not(#related),
-      #secondary.ytd-watch-fixie > *:not(ytd-playlist-panel-renderer):not(#panels):not(#related), // fixie
-      #secondary ytd-action-companion-ad-renderer,
-      #header-contents.ytd-playlist-panel-renderer,
-      ytd-engagement-panel-section-list-renderer > *,
-      ytd-playlist-panel-video-renderer > *,
-      yt-chip-cloud-renderer .yt-spec-button-shape-next:not(.yt-spec-button-shape-next--filled) > *,
-      yt-chip-cloud-chip-renderer .ytChipShapeChip,
-      ytd-watch-next-secondary-results-renderer,
-
-      #bottom-grid {
-        @content;
-      }
+    .left-container > *:not(#playerWrap):not(#commentapp),
+    .right-container-inner > * {
+      @content;
     }
   }
 
-  &:not([dark]) {
+  &:not(.night-mode) {
     @include filter-and-text-shadow-selectors {
       filter: var(--ytal-filter-shadow-inverted) !important;
       text-shadow: var(--ytal-text-shadow-inverted) !important;
     }
   }
 
-  &[dark] {
+  &.night-mode {
     @include filter-and-text-shadow-selectors {
       filter: var(--ytal-filter-shadow) !important;
       text-shadow: var(--ytal-text-shadow) !important;
     }
   }
 
-  // Comment on the side - Submit comment form
-  ytd-item-section-renderer[static-comments-header] #header.ytd-item-section-renderer {
-    background: none !important;
+  [data-ambientlight-masthead].ytal-header-shadow[data-ambientlight-text-shadow] .bili-header__bar {
+    text-shadow: var(--ytal-text-shadow) !important;
   }
-
-  // Comment on the side - Fixes infinte scrolling in comments when being scrolled down 
-  ytd-watch-fixie {
-    ytd-item-section-renderer[static-comments-header] #header.ytd-item-section-renderer {
-      backdrop-filter: blur(10px);
-      position: sticky;
-      bottom: 0;
-      z-index: 2;
-    }
-  }
-    
-
-  // Fix ellipsis after the views counter
-  #info-text.ytd-video-primary-info-renderer {
-    color: var(--yt-spec-text-secondary);
-  }
-
-  > body[data-ambientlight-text-shadow] {
-    .title.ytd-video-primary-info-renderer // Remove default title text-shadow
-    {
-      text-shadow: inherit !important;
-    }
-
-    #subscribe-button ytd-button-renderer:not([subscribed]) button,
-    tp-yt-paper-button.ytd-subscribe-button-renderer:not([subscribed]),
-    yt-chip-cloud-chip-renderer[selected] .ytChipShapeChip,
-    ytd-button-renderer.style-primary[is-paper-button] button,
-    .product-item-button.ytd-merch-shelf-item-renderer,
-    .yt-spec-button-shape-next--filled, // Ad button: Buy or rent
-    #action, // Ad button: More info
-    #action-button, // Ad button: Visite website
-    .badge-style-type-live-now-alternate.ytd-badge-supported-renderer,
-    ytd-author-comment-badge-renderer,
-    ytd-thumbnail-overlay-time-status-renderer {
-      filter: none !important;
-      text-shadow: none !important;
-    }
-
-    //// Remove shadow capping
-    // old video info
-    ytd-video-primary-info-renderer .title,
-    ytd-video-primary-info-renderer #info-text,
-    ytd-video-primary-info-renderer #info ytd-menu-renderer[has-flexible-items],
-    ytd-video-primary-info-renderer yt-formatted-string.ytd-button-renderer,
-    ytd-video-secondary-info-renderer .yt-spec-button-shape-next--button-text-content,
-    ytd-video-secondary-info-renderer #container.ytd-channel-name,
-
-    // new video info
-    h1.ytd-watch-metadata,
-    ytd-watch-metadata ytd-menu-renderer[has-flexible-items],
-    #info-container.ytd-watch-metadata,
-
-    // Related video - channel name
-    ytd-video-meta-block #byline-container,
-
-    // New comment
-    #author-text.yt-simple-endpoint.ytd-comment-renderer,
-
-    // Collapsable comment
-    #expander[collapsed].ytd-comment-renderer,
-
-    #container.ytd-channel-name,
-    #channel-name.long-byline.ytd-video-meta-block {
-      overflow: initial !important;
-    }
-
-    // New info-container
-    #info-container.ytd-watch-info-text {
-      mask-image: none !important;
-    }
-
-    // New video description
-    #description-inner.ytd-watch-metadata .yt-formatted-string {
-      &[style="color: rgb(170, 170, 170);"], // Dark theme
-      &[style="color: rgb(96, 96, 96);"]     // Light theme
-      {
-        color: var(--yt-spec-text-secondary) !important;
-      }
-    }
-
-    // Remove a bit of the shadow capping from elements that cap lines as well
-    ytd-expander[collapsed] > #content.ytd-expander,
-    #byline.ytd-playlist-panel-video-renderer,
-    #video-title.ytd-playlist-panel-video-renderer,
-    #video-title.ytd-compact-video-renderer,
-    ytd-video-meta-block #text.ytd-channel-name,
-    #metadata-line.ytd-video-meta-block,
-    .yt-lockup-metadata-view-model-wiz__title {
-      margin-left: -10px !important;
-      margin-top: -10px !important;
-      margin-right: -10px !important;
-      padding-left: 10px !important;
-      padding-top: 10px !important;
-      padding-right: 10px !important;
-    }
-
-    // Chapters
-    $chapters-content: '#content.ytd-engagement-panel-section-list-renderer';
-    #{$chapters-content} #sync-button {
-      text-shadow: none !important;
-    }
-  }
-
-  // new video info
-  #info-container.ytd-watch-metadata {
-    -webkit-mask-image: initial !important;
-    mask-image: initial !important;
-  }
-
-  @mixin filter-shadow-selectors {
-    > body[data-ambientlight-text-shadow] {
-      // Buttons & icons shadows
-      $info: 'ytd-menu-renderer.ytd-video-primary-info-renderer';
-      $chapters-header: '#header.ytd-engagement-panel-section-list-renderer';
-      $playlist-header: '#header-contents.ytd-playlist-panel-renderer';
-
-      #upload-info.ytd-video-owner-renderer,
-      #{$info} ytd-toggle-button-renderer button,
-      #{$info} ytd-button-renderer button,
-      #{$info} yt-icon.ytd-menu-renderer,
-      #top-row.ytd-watch-metadata button:not(.yt-spec-button-shape-next--filled) > *,
-      #info-container.ytd-watch-metadata, // Old info-container
-      #info-container.ytd-watch-info-text, // New info-container
-      #description-inline-expander.ytd-watch-metadata,
-      .ytVideoMetadataCarouselViewModelHost,
-      ytd-subscription-notification-toggle-button-renderer,
-      #left-section.ytd-expandable-metadata-renderer,
-      ytd-expandable-metadata-renderer .yt-icon-shape,
-
-      #{$chapters-header} yt-icon,
-      #{$chapters-header} #title-container,
-
-      #{$playlist-header} h3,
-      #{$playlist-header} ytd-badge-supported-renderer,
-      #{$playlist-header} .publisher,
-      #{$playlist-header} .index-message-wrapper,
-      #{$playlist-header} yt-icon-button,
-      #{$playlist-header} ytd-playlist-loop-button-renderer button,
-      #{$playlist-header} ytd-toggle-button-renderer button,
-      ytd-playlist-panel-video-renderer yt-icon.ytd-button-renderer,
-      ytd-playlist-panel-video-renderer yt-icon.ytd-menu-renderer,
-      
-      ytd-macro-markers-list-item-renderer yt-button-shape yt-icon,
-      .ytd-item-section-renderer yt-icon.ytd-menu-renderer,
-
-      ytd-comments-header-renderer[modern-typography] .count-text.ytd-comments-header-renderer, // New comments header
-      ytd-comment-replies-renderer .yt-spec-button-shape-next--call-to-action.yt-spec-button-shape-next--text, // More/less replies button
-      #like-button.ytd-comment-action-buttons-renderer, // Comment like button
-      #dislike-button.ytd-comment-action-buttons-renderer, // Comment dislike button
-      #reply-button-end.ytd-comment-action-buttons-renderer, // Reply button
-      #cancel-button.ytd-commentbox, // Reply form cancel button
-      #emoji-button.ytd-commentbox yt-icon, // Reply form emoticon button
-      #panel-button.ytd-comments-header-renderer yt-icon, // Show comments on the side
-      #sort-menu.ytd-comments-header-renderer #trigger tp-yt-paper-button,
-      ytd-live-chat-frame #show-hide-button.ytd-live-chat-frame .yt-spec-button-shape-next__button-text-content,
-
-      paper-toggle-button.ytd-compact-autoplay-renderer,
-      paper-menu-button,
-
-      #chatframe,
-
-      ytd-transcript-footer-renderer #trigger tp-yt-paper-button,
-      
-      #left-arrow-button.yt-chip-cloud-renderer yt-icon,
-      #right-arrow-button.yt-chip-cloud-renderer yt-icon
-      {
-        @content;
-        text-shadow: none !important;
-      }
-
-      tp-yt-paper-tooltip {
-        text-shadow: none !important; // Tooltips
-      }
-    }
-    
-    #masthead-container.ytal-header-shadow[data-ambientlight-text-shadow] {
-      ytd-searchbox,
-      yt-searchbox {
-        transition: filter .15s;
-      }
-      
-      &.ytal-header-transparent,
-      &.at-top {
-        yt-icon.ytd-logo svg {
-          overflow: visible;
-        }
-        yt-icon.ytd-logo,
-        yt-icon-button yt-icon svg,
-        ytd-searchbox:not(:hover):not(:focus-within) #search,
-        yt-searchbox:not(:hover):not(:focus-within) #search,
-        ytd-searchbox:not(:hover):not(:focus-within) yt-icon svg,
-        yt-searchbox:not(:hover):not(:focus-within) yt-icon svg,
-        ytd-button-renderer yt-icon svg {
-          @content;
-          text-shadow: none !important;
-        }
-      }
-    }
-  }
-  
-  &:not([dark]) {
-    @include filter-shadow-selectors {
-      filter: var(--ytal-button-shadow-inverted) !important;
-    }
-  }
-  
-  &[dark] {
-    @include filter-shadow-selectors {
-      filter: var(--ytal-button-shadow) !important;
-    }
-  }
-
-  // Keep icons within buttons with animated icons clickable
-  button yt-animated-icon {
-    pointer-events: none !important;
-  }
-
-  // Fix ambient light height in grid layout
-
-  #secondary-inner.ytd-watch-grid {
-    position: relative !important;
-  }
-
-  // Hide secondary metadata when overlayed by another panel in ytd-watch-grid
-
-  ytd-watch-grid[default-layout] {
-    @supports selector(:has(*)) {
-      #secondary {
-        &:has(ytd-engagement-panel-section-list-renderer[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]),
-        &:has(ytd-live-chat-frame:not([collapsed])),
-        &:has(ytd-playlist-panel-renderer:not([collapsed])) {
-          background: none !important;
-
-          ytd-watch-metadata[description-collapsed],
-          ytd-playlist-panel-renderer[collapsed],
-          ytd-live-chat-frame[collapsed] {
-            opacity: 0 !important;
-          }
-        }
-        
-        &:has([visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]) {
-          ytd-watch-metadata,
-          #show-hide-button.ytd-live-chat-frame,
-          #related {
-            opacity: 0 !important;
-          }
-        }
-      }
-    }
-
-    #secondary-inner {
-      ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-searchable-transcript"][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"] {
-        background: rgb(245,245,245) !important;
-      }
-
-      @supports not (selector(:has(*))) {
-        ytd-engagement-panel-section-list-renderer[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"],
-        ytd-live-chat-frame:not([collapsed]),
-        ytd-playlist-panel-renderer:not([collapsed]) {
-          background: rgb(245,245,245) !important;
-        }
-      }
-    }
-  }
-  &[dark] ytd-watch-grid[default-layout] {
-    #secondary-inner {
-      ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-searchable-transcript"][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"] {
-        background: rgb(10,10,10) !important;
-      }
-
-      @supports not (selector(:has(*))) {
-        ytd-engagement-panel-section-list-renderer[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"],
-        ytd-live-chat-frame:not([collapsed]),
-        ytd-playlist-panel-renderer:not([collapsed]) {
-          background: rgb(10,10,10) !important;
-        }
-      }
-    }
-  }
-
-  // Style experimental grid layout that is being A/B tested
-
-  ytd-watch-grid {
-    ytd-playlist-panel-renderer[collapsible][collapsed] .header.ytd-playlist-panel-renderer {
-      background-color: var(--yt-spec-brand-background-primary) !important;
-    }
-  }
-
-  // Zoomed in video overflow prevention
-
-  .html5-video-player {
-    overflow: var(--ytal-html5-video-player-overflow, hidden);
-  }
-
-
-  // Soft video controls shadow gradient on the sides
-
-  #primary .ytp-gradient-bottom {
-    mask-image: linear-gradient(to right, 
-      transparent 0%, 
-      rgb(0, 0, 0, .3) 25px, 
-      rgb(0, 0, 0, .55) 50px, 
-      rgb(0, 0, 0, .7) 75px, 
-      rgb(0, 0, 0, .8) 100px, 
-      rgb(0, 0, 0) 200px,
-
-      rgb(0, 0, 0) calc(100% - 200px),
-      rgb(0, 0, 0, .8) calc(100% - 100px), 
-      rgb(0, 0, 0, .7) calc(100% - 75px), 
-      rgb(0, 0, 0, .55) calc(100% - 50px), 
-      rgb(0, 0, 0, .3) calc(100% - 25px), 
-      transparent 100%);
-  }
-
-  &[data-ambientlight-layout-performance-improvements] {
-
-    // Faster comments loading
-
-    #primary.ytd-watch-flexy #below {
-      margin-bottom: 25svh;
-    }
-
-
-    // Improve layout rendering performance to compensate for the performance cost of the ambient light 
-
-    ytd-comment-thread-renderer {
-      content-visibility: auto;
-      contain-intrinsic-size: auto 100px;
-
-      // absolute positioned emojis dropdown
-      #emojis.ytd-commentbox {
-        position: relative;
-        max-width: 100%;
-      }
-    }
-    ytd-playlist-panel-renderer #top-level-buttons-computed {
-      z-index: 1002; // Prevents the "loop playlist" button tooltip from being hidden behind the first playlist item
-    }
-    ytd-playlist-panel-video-renderer {
-      content-visibility: auto;
-      contain-intrinsic-size: auto 62px;
-    }
-    yt-related-chip-cloud-renderer {
-      content-visibility: auto;
-      contain-intrinsic-size: auto 100px;
-    }
-    ytd-item-section-renderer.ytd-watch-next-secondary-results-renderer {
-      ytd-compact-video-renderer,
-      ytd-compact-radio-renderer,
-      ytd-compact-playlist-renderer {
-        content-visibility: auto;
-        contain-intrinsic-size: auto 94px;
-
-        // Related video - Channel name & badges tooltips
-        tp-yt-paper-tooltip {
-          top: -8px !important;
-        }
-      }
-    }
-
-    .ytd-comment-engagement-bar {
-      tp-yt-paper-tooltip {
-        margin-top: -88px !important;
-      }
-    }
-
-    tp-yt-paper-tooltip.ytd-creator-heart-renderer {
-      margin-top: -94px !important;
-    }
-
-
-    // Improve scrolling smoothness
-
-    #guide-inner-content.ytd-app, // youtube menu
-    .playlist-items.ytd-playlist-panel-renderer#items, // Playlist
-    ytd-transcript-segment-list-renderer.ytd-transcript-search-panel-renderer, // Transcriptions
-    .ytd-macro-markers-list-renderer#contents // Chapters
-    {
-      &:hover {
-        will-change: scroll-position !important;
-      }
-    }
-
-    
-    // Improve playlist dragging smoothness
-    
-    ytd-playlist-panel-renderer[js-panel-height]:not([collapsed]) #container.ytd-playlist-panel-renderer {
-      height: var(--ytd-watch-flexy-panel-max-height, max(400px, 100%) );
-      contain: strict;
-    }
-
-    .yt-spec-touch-feedback-shape__stroke,
-    .yt-spec-touch-feedback-shape__fill,
-    .stroke.yt-interaction,
-    .fill.yt-interaction {
-      will-change: initial !important;
-    }
-  }
-
-  // Load more shorts button
-
-  .button-container.ytd-rich-shelf-renderer {
-    background: none !important;
-    backdrop-filter: blur(5px);
-  }
-}
-
-  
-// Limit related videos to scrollable list with a height of 100vh
-
-html[data-ambientlight-related-scrollbar] {
-  ytd-app:not([scrolling]) {
-    overflow: visible;
-  }
-
-  ytd-watch-flexy[is-two-columns_] {
-    #secondary-inner.ytd-watch-flexy {
-      height: 100%;
-      min-height: calc(3000px + 100vh); // Must at least be high enough to fit the panels + related list
-    }
-
-    #related.ytd-watch-flexy {
-      position: sticky;
-      top: 80px;
-      height: calc(100vh - 104px);
-      overflow-x: hidden;
-      overflow-y: auto;
-      &:hover {
-        will-change: scroll-position;
-      }
-
-      @include scrollbar-light-thin;
-      &:not(:hover) {
-        &::-webkit-scrollbar-thumb:not(:hover) {
-          background-color: transparent;
-        }
-        scrollbar-color: transparent transparent !important;
-      }
-
-      #left-arrow.yt-horizontal-list-renderer {
-        align-items: flex-start;
-        left: 4px;
-      }
-      #right-arrow.yt-horizontal-list-renderer {
-        align-items: flex-end;
-        right: 4px;
-      }
-    }
-  }
-  &[dark] ytd-watch-flexy[is-two-columns_] #related.ytd-watch-flexy {
-    @include scrollbar-dark-thin;
-    &:not(:hover) {
-      &::-webkit-scrollbar-thumb:not(:hover) {
-        background-color: transparent;
-      }
-      scrollbar-color: transparent transparent !important;
-    }
-  }
-
-  ytd-watch-grid[default-layout] #primary.ytd-watch-grid:has(ytd-watch-next-secondary-results-renderer[is-watch-next-grid]) {
-    position: sticky;
-    bottom: 0;
-    margin-top: auto;
-
-    #below {
-      height: calc(100vh - 56px);
-      overflow-x: hidden;
-      overflow-y: auto;
-      &:hover {
-        will-change: scroll-position;
-      }
-
-      @include scrollbar-light-thin;
-      &:not(:hover) {
-        &::-webkit-scrollbar-thumb:not(:hover) {
-          background-color: transparent;
-        }
-        scrollbar-color: transparent transparent !important;
-      }
-    }
-  }
-
-  ytd-watch-grid:not([default-layout]) #primary.ytd-watch-grid:has(ytd-watch-next-secondary-results-renderer[is-watch-next-grid]) {
-    position: sticky;
-    top: 80px;
-    height: calc(100vh - 104px);
-    overflow-x: hidden;
-    overflow-y: auto;
-    &:hover {
-      will-change: scroll-position;
-    }
-
-    @include scrollbar-light-thin;
-    &:not(:hover) {
-      &::-webkit-scrollbar-thumb:not(:hover) {
-        background-color: transparent;
-      }
-      scrollbar-color: transparent transparent !important;
-    }
-  }
-  &[dark] ytd-watch-grid:not([default-layout]) #primary.ytd-watch-grid:has(ytd-watch-next-secondary-results-renderer[is-watch-next-grid]),
-  &[dark] ytd-watch-grid[default-layout] #primary.ytd-watch-grid:has(ytd-watch-next-secondary-results-renderer[is-watch-next-grid]) #below {
-    @include scrollbar-dark-thin;
-    &:not(:hover) {
-      &::-webkit-scrollbar-thumb:not(:hover) {
-        background-color: transparent;
-      }
-      scrollbar-color: transparent transparent !important;
-    }
+  &:not(.night-mode) [data-ambientlight-masthead].ytal-header-shadow[data-ambientlight-text-shadow] .bili-header__bar {
+    text-shadow: var(--ytal-text-shadow-inverted) !important;
   }
 }

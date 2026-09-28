@@ -1,4 +1,4 @@
-import { setErrorHandler, setStyleProperty } from './libs/generic';
+import { setErrorHandler } from './libs/generic';
 import { contentScript } from './libs/messaging/content';
 
 let reporting = false; // Prevent infinite loops
@@ -36,13 +36,21 @@ const getElem = (() => {
   };
 })();
 
+// Bilibili swaps the theme variables stylesheet between light.css and dark.css:
+// <link id="__css-map__" href="//s1.hdslb.com/bfs/seed/jinkela/short/bili-theme/light.css">
+const themeStylesheetRegex = /\/(light|dark)\.css(\?|#|$)/;
 function updateTheme(toDark) {
-  document.documentElement.toggleAttribute('dark', toDark);
+  document.documentElement.classList.toggle('night-mode', toDark);
 
-  const ytdAppElem = getElem('ytd-app');
-  if (ytdAppElem?.setMastheadTheme) {
-    ytdAppElem.setMastheadTheme();
-  }
+  const themeStylesheetElem = document.getElementById('__css-map__');
+  const href = themeStylesheetElem?.getAttribute('href');
+  if (!href || !themeStylesheetRegex.test(href)) return;
+
+  const newHref = href.replace(
+    themeStylesheetRegex,
+    `/${toDark ? 'dark' : 'light'}.css$2`
+  );
+  if (newHref !== href) themeStylesheetElem.setAttribute('href', newHref);
 }
 
 contentScript.addMessageListener(
@@ -53,32 +61,11 @@ contentScript.addMessageListener(
   }
 );
 
-const updateImmersiveMode = function updateImmersiveMode(
-  enable,
-  skipVideoPlayerSetSize = false
-) {
-  const html = document.documentElement;
-  const enabled = html.getAttribute('data-ambientlight-immersive') != null;
-  if (enabled === enable) return;
-
-  const scroll = {
-    x: window.scrollX,
-    y: window.scrollY,
-  };
-
-  html.toggleAttribute('data-ambientlight-immersive', enable);
-  const shift = enable ? 29 : -29;
-  if (scroll.y > 50 && scroll.y < 100) {
-    window.scrollTo(scroll.x, (scroll.y += shift));
-  }
-
-  const ytdApp = getElem('ytd-app');
-  if (ytdApp?.mastheadHeight) {
-    ytdApp.mastheadHeight += shift;
-    ytdApp.updateMastheadCssHeight?.();
-  }
-
-  if (!skipVideoPlayerSetSize && enabled !== enable) videoPlayerSetSize();
+const updateImmersiveMode = function updateImmersiveMode(enable) {
+  document.documentElement.toggleAttribute(
+    'data-ambientlight-immersive',
+    enable
+  );
 };
 
 contentScript.addMessageListener(
@@ -89,187 +76,48 @@ contentScript.addMessageListener(
   }
 );
 
-contentScript.addMessageListener(
-  'set-live-chat-theme',
-  function seLiveChatTheme(toDark) {
-    const liveChatElem = getElem('live-chat');
-    if (!liveChatElem) return;
-
-    liveChatElem.postToContentWindow({
-      'yt-live-chat-set-dark-theme': toDark,
-    });
-  }
-);
-
+// Only used by browsers that do not support VideoFrame.colorSpace
 contentScript.addMessageListener('is-hdr-video', function isHdrVideo() {
-  const videoPlayerElem = getElem('video-player');
-  const isHdr = videoPlayerElem?.getVideoData?.()?.isHdr ?? false;
-  contentScript.postMessage('is-hdr-video', isHdr);
+  contentScript.postMessage('is-hdr-video', false);
 });
-
-contentScript.addMessageListener(
-  'player-storyboard-format',
-  function playerStoryboardSpec() {
-    const player = getElem('video-player');
-    const format = player?.getStoryboardFormat?.();
-    contentScript.postMessage('player-storyboard-format', format);
-  }
-);
-
-function videoPlayerSetSize() {
-  const videoPlayerElem = getElem('video-player');
-  if (videoPlayerElem) {
-    try {
-      videoPlayerElem.setSize();
-      videoPlayerElem.setInternalSize();
-    } catch (ex) {
-      console.warn(
-        `Failed to resize the video player${
-          ex?.message ? `: ${ex?.message}` : ''
-        }`
-      );
-    }
-  }
-  contentScript.postMessage('sizes-changed');
-}
 
 contentScript.addMessageListener(
   'video-player-set-size',
   function onVideoPlayerSetSize() {
-    videoPlayerSetSize();
+    contentScript.postMessage('sizes-changed');
     contentScript.postMessage('video-player-set-size');
   }
 );
 
-let vrVideoCtx;
-let vrVideoCtxDrawArrays;
-const drawVR = (...args) => {
-  const result = vrVideoCtxDrawArrays.bind(vrVideoCtx)(...args);
-  contentScript.postMessage('next-vr-frame');
-  return result;
-};
-
-contentScript.addMessageListener('init-vr-video', function initVrVideo() {
-  const vrVideoElem = getElem('vr-video');
-  vrVideoCtx = vrVideoElem.getContext('webgl');
-  if (vrVideoCtx) {
-    if (vrVideoCtx.drawArrays !== drawVR) {
-      vrVideoCtxDrawArrays = vrVideoCtx.drawArrays;
-      vrVideoCtx.drawArrays = drawVR;
-    }
-  }
-});
-
-contentScript.addMessageListener('dispose-vr-video', function disposeVrVideo() {
-  if (!vrVideoCtx) return;
-
-  vrVideoCtx.drawArrays = vrVideoCtxDrawArrays;
-  vrVideoCtx = undefined;
-});
-
 contentScript.addMessageListener(
   'show',
-  function show({
-    ytdAppElemBackground,
-    toDark,
-    hideScrollbar,
-    relatedScrollbar,
-    immersiveMode,
-  }) {
-    const mastheadElem = getElem('masthead');
-    if (mastheadElem) mastheadElem.classList.add('no-animation');
-
-    const ytdAppElem = getElem('ytd-app');
-    // const playerTheaterContainerElem = getElem(
-    //   watchSelectors
-    //     .map((selector) => `${selector} #full-bleed-container`)
-    //     .join(', ')
-    // );
-
-    // Temporary backgrounds
-    // if (playerTheaterContainerElem) {
-    //   setStyleProperty(
-    //     playerTheaterContainerElem,
-    //     'background',
-    //     'none',
-    //     'important'
-    //   );
-    // }
-    if (ytdAppElem)
-      setStyleProperty(
-        ytdAppElem,
-        'background',
-        ytdAppElemBackground,
-        'important'
-      );
-
+  function show({ toDark, hideScrollbar, immersiveMode }) {
     const html = document.documentElement;
     if (hideScrollbar)
       html.toggleAttribute('data-ambientlight-hide-scrollbar', true);
-    if (relatedScrollbar)
-      html.toggleAttribute('data-ambientlight-related-scrollbar', true);
-    if (immersiveMode) updateImmersiveMode(true, true);
+    if (immersiveMode) updateImmersiveMode(true);
 
     updateTheme(toDark);
 
-    // await new Promise((resolve) => raf(resolve));
-    // // eslint-disable-next-line no-unused-vars
-    // const _1 = videoElem.clientWidth;
     html.toggleAttribute('data-ambientlight-enabled', true);
 
-    videoPlayerSetSize();
-
-    // Restore default backgrounds
-    // if (playerTheaterContainerElem)
-    //   playerTheaterContainerElem.style.background = '';
-    if (ytdAppElem) ytdAppElem.style.background = '';
-
-    if (mastheadElem) mastheadElem.classList.remove('no-animation');
+    contentScript.postMessage('sizes-changed');
     contentScript.postMessage('show');
   }
 );
 
 contentScript.addMessageListener('hide', function hide({ toDark }) {
-  const mastheadElem = getElem('masthead');
-  if (mastheadElem) mastheadElem.classList.add('no-animation');
-
   const html = document.documentElement;
   html.toggleAttribute('data-ambientlight-enabled', false);
-
   html.toggleAttribute('data-ambientlight-hide-scrollbar', false);
-  html.toggleAttribute('data-ambientlight-related-scrollbar', false);
 
-  updateImmersiveMode(false, true);
+  updateImmersiveMode(false);
 
   updateTheme(toDark);
 
-  videoPlayerSetSize();
-
-  if (mastheadElem) mastheadElem.classList.remove('no-animation');
+  contentScript.postMessage('sizes-changed');
   contentScript.postMessage('hide');
 });
-
-contentScript.addMessageListener(
-  'video-player-update-video-data-keywords',
-  function videoPlayerUpdateVideoDataKeywords(keywords) {
-    const videoPlayerElem = getElem('video-player');
-    if (!videoPlayerElem) return;
-
-    videoPlayerElem.updateVideoData({ keywords });
-  }
-);
-
-contentScript.addMessageListener(
-  'video-player-reload-video-by-id',
-  function videoPlayerReloadVideoById() {
-    const videoPlayerElem = getElem('video-player');
-    if (videoPlayerElem) {
-      const id = videoPlayerElem.getVideoData()?.video_id;
-      if (id) videoPlayerElem.loadVideoById(id); // Refreshes auto quality setting range above 480p
-    }
-    contentScript.postMessage('video-player-reload-video-by-id');
-  }
-);
 
 let videoObserver;
 let videoObserverElem;
@@ -298,7 +146,7 @@ contentScript.addMessageListener(
           }
         },
         {
-          rootMargin: '-70px 0px 0px 0px', // masthead height (56px) + additional pixel to be safe
+          rootMargin: '-70px 0px 0px 0px', // header height (64px) + additional pixels to be safe
           threshold: 0.0001, // Because sometimes a pixel in not visible on screen but the intersectionRatio is already 0
         }
       );

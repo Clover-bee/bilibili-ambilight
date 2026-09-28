@@ -236,29 +236,29 @@ export default class Stats {
     if (this.ambientlight.isHidden) return;
 
     if (this.settings.showResolutions) {
-      const videoResolution = `VIDEO: ${
+      const videoResolution = `影片：${
         this.ambientlight.videoElem?.videoWidth ?? '?'
       }x${this.ambientlight.videoElem?.videoHeight ?? '?'}`;
       const videoSyncedResolution = this.settings.videoOverlayEnabled
-        ? `VIDEO SYNCED: ${
+        ? `影片同步：${
             this.ambientlight.videoOverlay?.elem?.width ?? '?'
           }x${this.ambientlight.videoOverlay?.elem?.height ?? '?'}`
         : '';
       const projector = this.ambientlight.projector;
       const projectorBufferResolution = this.settings.webGL
-        ? `AMBIENT BUFFER: ${projector?.elem?.width ?? '?'}x${
+        ? `環境光緩衝：${projector?.elem?.width ?? '?'}x${
             projector?.elem?.height ?? '?'
           } 
-         [ load: ${(projector?.loadTime ?? 0).toFixed(1)}ms
-          | draw: ${(projector?.drawTime ?? 0).toFixed(1)}ms]`
+         [ 載入：${(projector?.loadTime ?? 0).toFixed(1)}ms
+          | 繪製：${(projector?.drawTime ?? 0).toFixed(1)}ms]`
         : '';
-      const projectorResolution = `AMBIENT: ${
+      const projectorResolution = `環境光：${
         this.settings.webGL
           ? `${projector?.blurCanvas?.width ?? '?'}x${
               projector?.blurCanvas?.height ?? '?'
             } 
-          [ clear: ${(projector?.blurClearTime ?? 0).toFixed(1)}ms
-          | draw: ${(projector?.blurDrawTime ?? 0).toFixed(1)}ms]`
+          [ 清除：${(projector?.blurClearTime ?? 0).toFixed(1)}ms
+          | 繪製：${(projector?.blurDrawTime ?? 0).toFixed(1)}ms]`
           : projector?.projectors?.length
           ? `${projector?.projectors[0]?.elem?.width ?? '?'}x${
               projector?.projectors[0]?.elem?.height ?? '?'
@@ -277,14 +277,14 @@ export default class Stats {
       if (this.videoBufferResolutionElem) {
         const projectorBuffer = this.ambientlight.projectorBuffer;
         const videoBufferResolution = `
-          VIDEO BUFFER: ${projectorBuffer?.elem?.width ?? '?'}x${
+          影片緩衝：${projectorBuffer?.elem?.width ?? '?'}x${
           projectorBuffer?.elem?.height ?? '?'
         }${
           projectorBuffer?.ctx?.loadTime === undefined
             ? ''
             : `
-          [ load: ${(projectorBuffer?.ctx?.loadTime ?? 0).toFixed(1)}ms
-          | draw: ${(projectorBuffer?.ctx?.drawTime ?? 0).toFixed(1)}ms]`
+          [ 載入：${(projectorBuffer?.ctx?.loadTime ?? 0).toFixed(1)}ms
+          | 繪製：${(projectorBuffer?.ctx?.drawTime ?? 0).toFixed(1)}ms]`
         }`;
         this.videoBufferResolutionElem.childNodes[0].nodeValue =
           videoBufferResolution;
@@ -294,14 +294,14 @@ export default class Stats {
     if (this.settings.showFPS) {
       // Video FPS
       const videoFrameRate = this.ambientlight.videoFrameRate;
-      const videoFPSText = `VIDEO: ${videoFrameRate.toFixed(2)} ${
+      const videoFPSText = `影片：${videoFrameRate.toFixed(2)} ${
         videoFrameRate ? `(${(1000 / videoFrameRate).toFixed(1)}ms)` : ''
       }`;
 
       // Video dropped frames
       const videoDroppedFrameCount =
         this.ambientlight.getVideoDroppedFrameCount();
-      const videoDroppedFramesText = `VIDEO DROPPED: ${videoDroppedFrameCount}`;
+      const videoDroppedFramesText = `影片掉幀：${videoDroppedFrameCount}`;
       const videoDroppedFramesColor =
         videoDroppedFrameCount > 0 ? '#ff3' : '#7f7';
 
@@ -310,8 +310,8 @@ export default class Stats {
       let videoSyncedColor = '#f55';
       if (this.settings.videoOverlayEnabled) {
         const videoOverlay = this.ambientlight.videoOverlay;
-        videoSyncedText = `VIDEO SYNCED: ${
-          videoOverlay?.isHidden ? 'NO' : 'YES'
+        videoSyncedText = `影片同步：${
+          videoOverlay?.isHidden ? '否' : '是'
         }`;
         videoSyncedColor = videoOverlay?.isHidden ? '#f55' : '#7f7';
       }
@@ -319,12 +319,12 @@ export default class Stats {
       // Ambientlight FPS
       const ambientlightFrameRate = this.ambientlight.ambientlightFrameRate;
       const framerateLimit = this.ambientlight.getRealFramerateLimit();
-      const ambientlightFPSText = `AMBIENT: ${ambientlightFrameRate.toFixed(
+      const ambientlightFPSText = `環境光：${ambientlightFrameRate.toFixed(
         2
       )} ${
         ambientlightFrameRate
           ? `(${(1000 / ambientlightFrameRate).toFixed(1)}ms)${
-              framerateLimit ? ` LIMITED TO: ${framerateLimit.toFixed(2)}` : ''
+              framerateLimit ? ` 上限：${framerateLimit.toFixed(2)}` : ''
             }`
           : ''
       }`;
@@ -339,7 +339,7 @@ export default class Stats {
           : '#7f7';
 
       // Ambientlight dropped frames
-      const ambientlightDroppedFramesText = `AMBIENT DROPPED: ${this.ambientlight.ambientlightVideoDroppedFrameCount}`;
+      const ambientlightDroppedFramesText = `環境光掉幀：${this.ambientlight.ambientlightVideoDroppedFrameCount}`;
       const ambientlightDroppedFramesColor =
         this.ambientlight.ambientlightVideoDroppedFrameCount > 0
           ? '#ff3'
@@ -369,7 +369,7 @@ export default class Stats {
       // Display FPS
       const displayFrameRate = Math.max(24, this.ambientlight.displayFrameRate);
       const videoFrameRate = this.ambientlight.videoFrameRate;
-      const displayFPSText = `DISPLAY: ${displayFrameRate.toFixed(2)} ${
+      const displayFPSText = `顯示器：${displayFrameRate.toFixed(2)} ${
         displayFrameRate ? `(${(1000 / displayFrameRate).toFixed(1)}ms)` : ''
       }`;
       const displayFPSColor =
@@ -557,31 +557,31 @@ export default class Stats {
       (ft) => !ft.video?.decode || !ft.drawEnd
     ).length;
 
-    const legend = `               VERTICAL BARS             MIN        MAX
-BLUE         | Video decoding:    ${videoProcessingRange[0]}ms ${
+    const legend = `長條圖                        最小       最大
+藍色        | 影片解碼：       ${videoProcessingRange[0]}ms ${
       videoProcessingRange[1]
     }ms
-GREEN/YELLOW | Ambient rendering: ${ambientProcessingRange[0]}ms ${
+綠色／黃色  | 環境光渲染：     ${ambientProcessingRange[0]}ms ${
       ambientProcessingRange[1]
     }ms
-GRAY         | Compositing:       ${compositorProcessingRange[0]}ms ${
+灰色        | 合成：           ${compositorProcessingRange[0]}ms ${
       compositorProcessingRange[1]
     }ms
-ORANGE       | Compositing delay 
-RED          | Skipped video frames
+橘色        | 合成延遲
+紅色        | 跳過的影片影格
 
-               DOTTED LINES
-WHITE        | when the next video frame will be displayed
-GRAY         | when the next video frame will decoded
-GREEN        | when the video frame will be displayed
+虛線
+白色        | 下一個影片影格顯示的時間
+灰色        | 下一個影片影格解碼的時間
+綠色        | 影片影格顯示的時間
 
-STATS
-Frames on time: ${(frameTimes.length - delayedFrames - skippedFrames)
+統計
+準時的影格：${(frameTimes.length - delayedFrames - skippedFrames)
       .toString()
-      .padStart(3, ' ')} | Delayed: ${delayedFrames
+      .padStart(3, ' ')} | 延遲：${delayedFrames
       .toString()
-      .padStart(3, ' ')} | Skipped: ${skippedFrames.toString().padStart(3, ' ')}
-Ambient rendering budget: ${ambientlightBudgetRange[0]}ms to ${
+      .padStart(3, ' ')} | 跳過：${skippedFrames.toString().padStart(3, ' ')}
+環境光渲染預算：${ambientlightBudgetRange[0]}ms 到 ${
       ambientlightBudgetRange[1]
     }ms`;
     this.ambientlightFTLegendElem.childNodes[0].nodeValue = legend;
@@ -592,7 +592,7 @@ Ambient rendering budget: ${ambientlightBudgetRange[0]}ms to ${
 
     if (!this.frameTimesCanvas) {
       this.frameTimesCanvas = new Canvas(width, height);
-      this.frameTimesCanvas.setAttribute('title', 'Click to toggle legend');
+      this.frameTimesCanvas.setAttribute('title', '點擊顯示／隱藏圖例');
       on(
         this.frameTimesCanvas,
         'click',
@@ -902,7 +902,7 @@ Ambient rendering budget: ${ambientlightBudgetRange[0]}ms to ${
       : undefined;
 
     this.barDetectionDurationElem.childNodes[0].nodeValue = duration
-      ? ` SEARCH DURATION: ${duration}ms`
+      ? ` 搜尋耗時：${duration}ms`
       : '';
     this.barDetectionDurationElem.style.color = '#fff';
   };
@@ -914,13 +914,13 @@ Ambient rendering budget: ${ambientlightBudgetRange[0]}ms to ${
       ? `${Math.round(1000 / throttle).toFixed(2)} (${(throttle / 1000).toFixed(
           1
         )}s)`
-      : 'VIDEO FPS';
+      : '影片影格率';
 
     const barDetectionLastChange = lastChange
-      ? `${((performance.now() - lastChange) / 1000).toFixed(1)}s ago`
+      ? `${((performance.now() - lastChange) / 1000).toFixed(1)} 秒前`
       : '';
 
-    this.barDetectionFPSElem.childNodes[0].nodeValue = `BAR DETECTION: ${barDetectionFPS} / ${barDetectionLastChange}`;
+    this.barDetectionFPSElem.childNodes[0].nodeValue = `黑邊偵測：${barDetectionFPS} / ${barDetectionLastChange}`;
     this.barDetectionFPSElem.style.color = '#fff';
   };
 
@@ -939,7 +939,7 @@ Ambient rendering budget: ${ambientlightBudgetRange[0]}ms to ${
 
       this.barDetectionCanvas.setAttribute(
         'title',
-        `LINES \nBlue:        Detected bar\nGreen:     Detected edge \nOrange:  Diverging edge \nGray:       Ignored edge \nRed:        Scanline`
+        `線條\n藍色：偵測到的黑邊\n綠色：偵測到的邊緣\n橘色：不一致的邊緣\n灰色：忽略的邊緣\n紅色：掃描線`
       );
       on(
         this.barDetectionCanvas,
@@ -1002,7 +1002,7 @@ Ambient rendering budget: ${ambientlightBudgetRange[0]}ms to ${
 
     this.barDetectionHorizontalResultElem.childNodes[0].nodeValue = `${[
       this.settings.detectHorizontalBarSizeEnabled
-        ? ` HORIZONTAL: ${
+        ? ` 上下黑邊：${
             horizontalBarSizeInfo.percentage !== undefined
               ? `${horizontalBarSizeInfo.percentage
                   .toFixed(2)
@@ -1011,7 +1011,7 @@ Ambient rendering budget: ${ambientlightBudgetRange[0]}ms to ${
           }%  ➜ ${horizontalPercentage.toFixed(2).padStart(5, ' ')}%`
         : '',
       this.settings.detectHorizontalBarSizeEnabled
-        ? ` COLOR (rgb):       ${horizontalBarSizeInfo.color
+        ? ` 顏色 (rgb)：${horizontalBarSizeInfo.color
             ?.map((c) => Math.round(c).toString().padStart(3, ' '))
             ?.join(' ')}`
         : '',
@@ -1027,14 +1027,14 @@ Ambient rendering budget: ${ambientlightBudgetRange[0]}ms to ${
 
     this.barDetectionVerticalResultElem.childNodes[0].nodeValue = `${[
       this.settings.detectVerticalBarSizeEnabled
-        ? ` VERTICAL:     ${
+        ? ` 左右黑邊：${
             verticalBarSizeInfo.percentage !== undefined
               ? `${verticalBarSizeInfo.percentage.toFixed(2).padStart(5, ' ')}`
               : '  #.##'
           }%  ➜ ${verticalPercentage.toFixed(2).padStart(5, ' ')}%`
         : '',
       this.settings.detectVerticalBarSizeEnabled
-        ? ` COLOR (rgb):       ${verticalBarSizeInfo.color
+        ? ` 顏色 (rgb)：${verticalBarSizeInfo.color
             ?.map((c) => Math.round(c).toString().padStart(3, ' '))
             ?.join(' ')}`
         : '',

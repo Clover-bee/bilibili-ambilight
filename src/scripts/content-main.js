@@ -1,401 +1,147 @@
 import {
-  on,
   wrapErrorHandler,
   isWatchPageUrl,
   setErrorHandler,
-  watchSelectors,
-  isEmbedPageUrl,
   setWarning,
-  off,
+  videoSelector,
 } from './libs/generic';
-import { ErrorEvents } from './libs/errors/events';
-import {
-  getNodeTreeString,
-  getOtherUnknownAppElems,
-  getPageElems,
-  getSelectorTreeString,
-} from './libs/errors/dom';
-import { AmbientlightError } from './libs/errors/ambient-light-error';
-import SentryReporter, {
-  setVersion,
-  setCrashOptions,
-} from './libs/errors/sentry-reporter';
+import ErrorReporter from './libs/errors/reporter';
 import Ambientlight from './libs/ambientlight';
 import Settings from './libs/settings';
-import { contentScript } from './libs/messaging/content';
-import { getVersion } from './libs/utils';
-import { defaultCrashOptions, storage } from './libs/storage';
 
-setErrorHandler((ex) => SentryReporter.captureException(ex));
+setErrorHandler((ex) => ErrorReporter.captureException(ex));
 
-wrapErrorHandler(async function initVersionAndCrashOptions() {
-  const version = getVersion(); // document.currentScript?.getAttribute('data-version') || ''
-  setVersion(version);
-  // const options = JSON.parse(document.currentScript?.getAttribute('data-crash-options'))
-  const crashOptions =
-    (await storage.get('crashOptions')) || defaultCrashOptions;
-  setCrashOptions(crashOptions);
-  contentScript.addMessageListener('crashOptions', (newCrashOptions) => {
-    setCrashOptions(newCrashOptions);
-  });
+const getVideoElem = () => document.querySelector(videoSelector);
 
-  storage.addListener(function storageListener(changes) {
-    if (!changes.crashOptions?.newValue) return;
+// The top level element of the page that contains the player. For example: #app on /video/ pages
+const getAppElem = (videoElem) => videoElem.closest('body > *');
 
-    const crashOptions = changes.crashOptions.newValue;
-    setCrashOptions(crashOptions);
-  });
-})();
+const getMastheadElem = () =>
+  document.querySelector('#biliMainHeader, #bili-header-container');
 
-let errorEvents;
-wrapErrorHandler(function initErrorEvents() {
-  errorEvents = new ErrorEvents();
-})();
-
-const logErrorEventWithPageTrees = (message, details = {}) => {
-  if (!isWatchPageUrl()) return;
-  if (isVideoInKnownInvalidLocation()) return;
-
-  details = {
-    ...details,
-    ...getPageElems(),
-  };
-
-  errorEvents.add(message, details);
-};
-
-const isVideoInKnownInvalidLocation = () => {
-  const ytdAppPlayerVideoElem = () =>
-    document.querySelector(
-      'ytd-app > #container.ytd-player video.html5-main-video'
-    );
-  const playerApiVideoElem = () =>
-    document.querySelector('#player-api video.html5-main-video');
-  const ytPlayerManagerVideoElem = () =>
-    document.querySelector('yt-player-manager video.html5-main-video');
-  const ytdInlinePreviewPlayerVideoElem = () =>
-    document.querySelector('#inline-preview-player video.html5-main-video');
-  const ytdBrowseVideoElem = () =>
-    document.querySelector('ytd-browse video.html5-main-video');
-  const ytdMiniplayerVideoElem = () =>
-    document.querySelector('ytd-miniplayer video.html5-main-video');
-  const channelPlayerVideoElem = () =>
-    document.querySelector(
-      'ytd-channel-video-player-renderer video.html5-main-video'
-    );
-  const isInShorts = () =>
-    document.querySelector('ytd-shorts video.html5-main-video');
-  const isControlledByAnotherExtension = () =>
-    document.querySelector('.html5-video-container video.stefanvdvideotop');
-  const outsideYtdAppVideoElem = () =>
-    document.querySelector(
-      'html > *:not(body) video.html5-main-video, body > *:not(ytd-app) video.html5-main-video, body > video.html5-main-video'
-    );
-  return !!(
-    ytdAppPlayerVideoElem() ||
-    playerApiVideoElem() ||
-    ytPlayerManagerVideoElem() ||
-    ytdInlinePreviewPlayerVideoElem() ||
-    ytdBrowseVideoElem() ||
-    ytdMiniplayerVideoElem() ||
-    channelPlayerVideoElem() ||
-    isInShorts() ||
-    isControlledByAnotherExtension() ||
-    outsideYtdAppVideoElem()
-  );
-};
-
-const detectDetachedVideo = () => {
-  const observer = new MutationObserver(
-    wrapErrorHandler(function detectDetachedVideo() {
-      if (!isWatchPageUrl()) return;
-
-      const videoElem = ambientlight.videoElem;
-      const ytdAppElem = ambientlight.ytdAppElem ?? document.body;
-
-      const isDetached =
-        !videoElem ||
-        !ytdAppElem?.contains(videoElem) ||
-        !document.contains(ytdAppElem);
-      if (!isDetached) {
-        if (errorEvents.list.length) {
-          errorEvents.list = [];
-        }
-        return;
-      }
-
-      if (!document.querySelector('video')) return;
-
-      const newVideoElem =
-        document.body !== ytdAppElem
-          ? document.querySelector(
-              watchSelectors
-                .map(
-                  (selector) =>
-                    `ytd-app #content.ytd-app ${selector} video.html5-main-video`
-                )
-                .join(', ')
-            )
-          : ytdAppElem.querySelector('video.html5-main-video');
-      if (!newVideoElem) {
-        logErrorEventWithPageTrees('detectDetachedVideo');
-        return;
-      }
-
-      if (document.body !== ytdAppElem) {
-        const newYtdAppElem = newVideoElem.closest('ytd-app');
-        if (newYtdAppElem !== ytdAppElem) {
-          const details = {
-            documentHasOldVideo: document.contains(videoElem),
-            documentHasOldYtdApp: document.contains(ytdAppElem),
-            htmlHasOldVideo: document.documentElement?.contains(videoElem),
-            htmlHasOldYtdApp: document.documentElement?.contains(ytdAppElem),
-            newYtdAppHasOldVideo: newYtdAppElem?.contains(videoElem),
-            oldYtdAppHasOldVideo: ytdAppElem?.contains(videoElem),
-            oldYtdAppTree: getNodeTreeString(ytdAppElem),
-            oldVideoTree: getNodeTreeString(videoElem),
-          };
-          logErrorEventWithPageTrees('detectDetachedYtdApp', details);
-          return;
-          // Migrating to a new ytd-app element is not supported,
-          // because it will also require moving or re-creating the
-          // settings menu, canvasses and other elements
-        }
-      }
-
-      if (videoElem !== newVideoElem) {
-        ambientlight.initVideoElem(newVideoElem);
-      }
-
-      ambientlight.start();
-
-      if (errorEvents.list.length) {
-        errorEvents.list = [];
-      }
-    }, true)
-  );
-
-  observer.observe(document, {
-    attributes: false,
-    attributeOldValue: false,
-    characterData: false,
-    characterDataOldValue: false,
-    childList: true,
-    subtree: true,
-  });
-};
-
-const waitForVideoInteraction = async (videoElem) => {
-  if (videoElem.readyState > 2 && !videoElem.paused && !videoElem.ended) return;
-
-  await new Promise((resolve, reject) => {
-    try {
-      const onInteraction = () => {
-        off(videoElem, 'playing', onInteraction);
-        off(window, 'click', onInteraction);
-        resolve();
-      };
-      on(videoElem, 'playing', onInteraction, { once: true });
-      on(window, 'click', onInteraction, { once: true });
-    } catch (ex) {
-      reject(ex);
-    }
-  });
-};
-
+let loggedUnsupportedPlayer = false;
 const tryInitAmbientlight = async () => {
   if (window.ambientlight) return true;
   if (!isWatchPageUrl()) return;
-  if (!document.querySelector('video')) return;
 
-  const settingsMenuBtnParentSelector = [
-    '.html5-video-player .ytp-right-controls',
-    '.html5-video-player .ytp-chrome-controls > *:last-child',
-  ].join(', ');
-  const hasSettingsMenuBtnParent = !!document.querySelector(
-    settingsMenuBtnParentSelector
-  );
-  if (!hasSettingsMenuBtnParent) {
-    logErrorEventWithPageTrees(
-      `initialize - not found yet: ${settingsMenuBtnParentSelector}`
-    );
-    return;
-  }
-
-  if (isEmbedPageUrl()) {
-    const videoElem = document.querySelector(
-      '#player .html5-video-player .html5-video-container video.html5-main-video'
-    );
-    if (!videoElem) {
-      logErrorEventWithPageTrees(
-        'initialize - not found yet: #player .html5-video-player .html5-video-container video.html5-main-video'
-      );
-      return;
-    }
-
-    await waitForVideoInteraction(videoElem);
-    if (!document.body?.contains(videoElem)) return;
-
-    window.ambientlight = await new Ambientlight(videoElem);
-
-    errorEvents.list = [];
-    detectDetachedVideo();
-    return true;
-  }
-
-  const videoElem = document.querySelector(
-    watchSelectors
-      .map(
-        (selector) =>
-          `ytd-app #content.ytd-app ${selector} .html5-video-player .html5-video-container video.html5-main-video`
-      )
-      .join(', ')
-  );
+  const videoElem = getVideoElem();
   if (!videoElem) {
-    logErrorEventWithPageTrees(
-      'initialize - not found yet: ytd-app ytd-watch-... .html5-video-player .html5-video-container video.html5-main-video'
-    );
+    if (
+      !loggedUnsupportedPlayer &&
+      document.querySelector('.bpx-player-video-wrap bwp-video')
+    ) {
+      loggedUnsupportedPlayer = true;
+      console.warn(
+        '這部影片使用 Bilibili 的 <bwp-video> 播放器播放，目前不支援。'
+      );
+    }
     return;
   }
 
-  const ytdAppElem = document.querySelector('ytd-app');
-  if (!ytdAppElem) {
-    logErrorEventWithPageTrees('initialize - not found yet: ytd-app');
-    return;
-  }
+  const settingsMenuBtnParent = videoElem
+    .closest('.bpx-player-container')
+    ?.querySelector('.bpx-player-control-bottom-right');
+  if (!settingsMenuBtnParent) return;
 
-  const contentElem = document.querySelector('#content.ytd-app');
-  if (!contentElem) {
-    logErrorEventWithPageTrees('initialize - not found yet: #content.ytd-app');
-    return;
-  }
+  const appElem = getAppElem(videoElem);
+  if (!appElem) return;
 
-  const ytdWatchElem = document.querySelector(
-    watchSelectors.map((selector) => `ytd-app ${selector}`).join(', ')
-  );
-  if (!ytdWatchElem) {
-    logErrorEventWithPageTrees(
-      `initialize - not found yet: ytd-app ytd-watch-...`
-    );
-    return;
-  }
-
-  const mastheadElem = document.querySelector('ytd-app #masthead-container');
-  if (!mastheadElem) {
-    logErrorEventWithPageTrees(
-      'initialize - not found yet: #masthead-container'
-    );
-    return;
-  }
   window.ambientlight = await new Ambientlight(
     videoElem,
-    ytdAppElem,
-    ytdWatchElem,
-    mastheadElem
+    appElem,
+    getMastheadElem()
   );
 
-  errorEvents.list = [];
-  detectDetachedVideo();
-  detectPageTransitions(ytdAppElem);
-  if (!window.ambientlight.isOnVideoPage) {
-    detectWatchPageVideo(ytdAppElem);
-  }
-
+  detectReplacedPlayerElems();
   return true;
 };
 
-const getWatchPageViewObserver = (function initGetWatchPageViewObserver() {
-  let observer;
-  return function getWatchPageViewObserver() {
-    if (!observer) {
-      observer = new MutationObserver(
-        wrapErrorHandler(function watchPageViewObserved() {
-          startIfWatchPageHasVideo();
-        }, true)
+// Bilibili can replace the video and player elements.
+// For example: When navigating to the next video in a playlist or to another part of a video
+const detectReplacedPlayerElems = () => {
+  let scheduled = false;
+  let checking = false;
+
+  const check = wrapErrorHandler(async function checkReplacedPlayerElems() {
+    scheduled = false;
+    if (checking || !isWatchPageUrl()) return;
+
+    const ambientlight = window.ambientlight;
+    if (!ambientlight?.settings) return;
+
+    const videoElem = getVideoElem();
+    if (!videoElem) return;
+
+    checking = true;
+    try {
+      const pageElemsChanged = ambientlight.updatePageElems(
+        getAppElem(videoElem),
+        getMastheadElem()
       );
+
+      const playerChanged =
+        !ambientlight.videoPlayerElem?.isConnected ||
+        !ambientlight.videoPlayerElem.contains(videoElem);
+      const videoChanged =
+        playerChanged || ambientlight.videoElem !== videoElem;
+
+      if (playerChanged) {
+        await ambientlight.reinitPlayerElems(videoElem);
+      } else if (videoChanged) {
+        ambientlight.initVideoElem(videoElem);
+      }
+
+      // Bilibili could have re-rendered the controls of the player
+      if (!ambientlight.settingsMenuBtnParent?.isConnected) {
+        const settingsMenuBtnParent =
+          ambientlight.videoPlayerElem.querySelector(
+            '.bpx-player-control-bottom-right'
+          );
+        if (settingsMenuBtnParent)
+          ambientlight.settingsMenuBtnParent = settingsMenuBtnParent;
+      }
+      ambientlight.settings.attachToPlayer(
+        ambientlight.settingsMenuBtnParent,
+        ambientlight.videoAreaElem
+      );
+
+      if (ambientlight.elem && !ambientlight.elem.isConnected) {
+        ambientlight.appendElemToViewContainer();
+        ambientlight.sizesChanged = true;
+      }
+
+      if (videoChanged) {
+        await ambientlight.start();
+      } else if (pageElemsChanged) {
+        await ambientlight.optionalFrame();
+      }
+    } finally {
+      checking = false;
     }
-    return observer;
-  };
-})();
-const detectWatchPageVideo = (ytdAppElem) => {
-  getWatchPageViewObserver().observe(ytdAppElem, {
+  }, true);
+
+  // Throttled, because the danmaku (comments that fly over the video) mutate the page continuously
+  const observer = new MutationObserver(function onPageMutation() {
+    if (scheduled) return;
+
+    scheduled = true;
+    setTimeout(check, 250);
+  });
+  observer.observe(document, {
     childList: true,
     subtree: true,
   });
 };
-const startIfWatchPageHasVideo = () => {
-  if (!isWatchPageUrl() || window.ambientlight.isOnVideoPage) {
-    getWatchPageViewObserver().disconnect();
-    return;
-  }
-
-  const videoElem = document.querySelector(
-    watchSelectors
-      .map((selector) => `ytd-app ${selector} video.html5-main-video`)
-      .join(', ')
-  );
-  if (!videoElem) return;
-
-  getWatchPageViewObserver().disconnect();
-  window.ambientlight.isOnVideoPage = true;
-  window.ambientlight.start();
-};
-
-const detectPageTransitions = (ytdAppElem) => {
-  on(
-    document,
-    'yt-navigate-finish',
-    async function onYtNavigateFinish() {
-      getWatchPageViewObserver().disconnect();
-      if (isWatchPageUrl()) {
-        startIfWatchPageHasVideo();
-        if (!window.ambientlight.isOnVideoPage) {
-          detectWatchPageVideo(ytdAppElem);
-        }
-      } else {
-        if (window.ambientlight.isOnVideoPage) {
-          window.ambientlight.isOnVideoPage = false;
-          await window.ambientlight.hide();
-        }
-      }
-    },
-    undefined,
-    true
-  );
-};
 
 const loadAmbientlight = async () => {
-  // Mobile player
-  if (document.querySelector('#player-control-container')) return;
-
-  // Validate YouTube desktop web app or embedded page
-  let observerTarget = document.querySelector('ytd-app');
-  if (!observerTarget) {
-    if (isEmbedPageUrl()) {
-      observerTarget = document.documentElement;
-    } else {
-      const otherAppElems = getOtherUnknownAppElems();
-      if (otherAppElems.length) {
-        const selectorTree = getSelectorTreeString(
-          otherAppElems.map((elem) => elem.tagName).join(',')
-        );
-        throw new AmbientlightError(
-          'Found one or more *-app elements but cannot find desktop app element: ytd-app',
-          selectorTree
-        );
-      }
-      return;
-    }
-  }
-
   if (await tryInitAmbientlight()) return;
-  // Not on the watch page yet
+  // The video player has not been loaded yet
 
   try {
     await Settings.getStoredSettingsCached();
   } catch (ex) {
     setWarning(
-      `Your previous settings cannot be loaded. Refresh the webpage to try it again. ${'\n'}This can happen after you have updated the extension. ${'\n\n'}${ex?.toString()}`
+      `無法載入先前的設定，請重新整理網頁再試一次。${'\n'}更新擴充功能後可能會發生這種情況。${'\n\n'}${ex?.toString()}`
     );
 
     if (
@@ -412,7 +158,7 @@ const loadAmbientlight = async () => {
   let initializing = false;
   let tryAgain = true;
   const observer = new MutationObserver(
-    wrapErrorHandler(async function ytdAppObserved(mutationsList, observer) {
+    wrapErrorHandler(async function pageObserved(mutationsList, observer) {
       if (initializing) {
         tryAgain = true;
         return;
@@ -446,7 +192,7 @@ const loadAmbientlight = async () => {
       }
     }, true)
   );
-  observer.observe(observerTarget, {
+  observer.observe(document.documentElement, {
     childList: true,
     subtree: true,
   });
@@ -467,6 +213,6 @@ const onLoad = wrapErrorHandler(async function onLoadCallback() {
       onLoad();
     }
   } catch (ex) {
-    SentryReporter.captureException(ex);
+    ErrorReporter.captureException(ex);
   }
 })();

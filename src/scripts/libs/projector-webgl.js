@@ -1,7 +1,7 @@
-import SentryReporter from './errors/sentry-reporter';
+import ErrorReporter from './errors/reporter';
 import { AmbientlightError } from './errors/ambient-light-error';
 import {
-  canvasWebGLCrashTips,
+  getWebGLCrashMessage,
   ctxOptions,
   requestIdleCallback,
   SafeOffscreenCanvas,
@@ -328,7 +328,7 @@ export default class ProjectorWebGL {
 
   setWebGLWarning(action = 'restore') {
     this.setWarning(
-      `Failed to ${action} the WebGL renderer from a GPU crash.${canvasWebGLCrashTips}`
+      getWebGLCrashMessage(action)
     );
   }
 
@@ -428,7 +428,7 @@ export default class ProjectorWebGL {
     try {
       return (await storage.get('majorPerformanceCaveatDetected')) || false;
     } catch (ex) {
-      SentryReporter.captureException(ex);
+      ErrorReporter.captureException(ex);
     }
   }
 
@@ -438,7 +438,7 @@ export default class ProjectorWebGL {
     if (detected) return;
 
     const message =
-      'The browser warned that this is a slow device. If you have a graphics card, make sure to enable hardware acceleration in the browser.\n(The resolution setting has been turned down to 25% for better performance)';
+      '瀏覽器回報這是一台效能較低的裝置。如果你有顯示卡，請確認瀏覽器已開啟硬體加速。\n（已將解析度設定調降為 25% 以提升效能）';
     // console.warn(`ProjectorWebGL: ${message}`)
     this.setWarning(message, true);
     this.settings.set('resolution', 25, true);
@@ -1433,9 +1433,8 @@ export default class ProjectorWebGL {
     )
       return;
 
-    const videoBoundingElem = this.ambientlight.shouldStyleVideoParentElem
-      ? this.ambientlight.videoContainerElem
-      : this.ambientlight.videoElem;
+    // The bounding rect of the video element includes the scale and clip-path of the video
+    const videoBoundingElem = this.ambientlight.videoElem;
     if (!videoBoundingElem) return;
 
     let videoRect = videoBoundingElem.getBoundingClientRect();

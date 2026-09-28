@@ -133,8 +133,3 @@ class Storage {
 
 export const storage = new Storage();
 
-export const defaultCrashOptions = {
-  video: false,
-  technical: true,
-  crash: true,
-};

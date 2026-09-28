@@ -391,11 +391,20 @@ export const supportsColorMix = () => {
   return _supportsColorMix;
 };
 
-export const isWatchPageUrl = () =>
-  ['/watch', '/live/'].some((path) => location.pathname.startsWith(path)) ||
-  isEmbedPageUrl();
+export const watchPagePaths = [
+  '/video/',
+  '/bangumi/play/',
+  '/list/',
+  '/medialist/play/',
+  '/festival/',
+  '/cheese/play/',
+];
 
-export const isEmbedPageUrl = () => location.pathname?.startsWith('/embed/');
+export const isWatchPageUrl = () =>
+  watchPagePaths.some((path) => location.pathname.startsWith(path));
+
+// Embedded players (player.bilibili.com) are not supported yet
+export const isEmbedPageUrl = () => false;
 
 export const getCookie = async (name) =>
   globalThis.cookieStore
@@ -461,11 +470,8 @@ export const VIEW_THEATER = 'THEATER';
 export const VIEW_FULLSCREEN = 'FULLSCREEN';
 export const VIEW_POPUP = 'POPUP';
 
-export const watchSelectors = [
-  'ytd-watch-flexy',
-  'ytd-watch-fixie',
-  'ytd-watch-grid',
-];
+export const playerContainerSelector = '.bpx-player-container';
+export const videoSelector = `${playerContainerSelector} .bpx-player-video-wrap video`;
 
 let warningElem;
 let warningElemText;
@@ -513,7 +519,7 @@ export const setWarning = (text) => {
     titleElem.style.color = '#008cff';
     titleElem.style.fontSize = '22px';
     titleElem.style.lineHeight = '28px';
-    titleElem.textContent = 'Ambient light for YouTube™\n';
+    titleElem.textContent = 'Bilibili 環境光\n';
     elem.appendChild(titleElem);
 
     const textElem = document.createElement('div');
@@ -545,13 +551,22 @@ export const setStyleProperty = (elem, name, value, priority = '') => {
 
 export const canvas2DCrashTips = `
 
-Reload the webpage to try it again.
+重新整理網頁再試一次。
 
-Possible causes:
-- The memory of your GPU is fully used by another application.
-- You have to many YouTube webpages visible at the same time. You GPU can only render a limit amount of ambient lights at the same time.
-- You have changed a setting to a value that is incompatible with your GPU. Undo your last change and refresh the webpage. Or reset all settings with the reset button at the top right.`;
+可能的原因：
+- GPU 的記憶體被其他程式佔滿了。
+- 同時顯示太多個 Bilibili 網頁。GPU 同一時間能渲染的環境光數量有限。
+- 你把某個設定改成了 GPU 不支援的值。請復原最後一次的變更並重新整理網頁，或用選單右上角的重設按鈕重設所有設定。`;
 
 export const canvasWebGLCrashTips = `${canvas2DCrashTips}
 
-Another possible workaround could be to turn off the "Quality" > "WebGL renderer" setting (This is an advanced setting). But if you do so, know that the legacy renderer requires more power.`;
+另一個可能的解決方法是關閉「品質與效能 > WebGL 渲染器」設定（進階設定），但舊版渲染器會比較耗電。`;
+
+export const getWebGLCrashMessage = (action) =>
+  `${
+    {
+      create: '無法建立 WebGL 渲染器。',
+      change: '無法套用 WebGL 渲染器的設定變更。',
+      '3 times restore': 'GPU 當機後已嘗試 3 次，仍無法恢復 WebGL 渲染器。',
+    }[action] ?? 'GPU 當機後無法恢復 WebGL 渲染器。'
+  }${canvasWebGLCrashTips}`;

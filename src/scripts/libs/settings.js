@@ -10,14 +10,13 @@ import {
   VIEW_FULLSCREEN,
   setDisplayErrorHandler,
 } from './generic';
-import SentryReporter from './errors/sentry-reporter';
+import ErrorReporter from './errors/reporter';
 import SettingsConfig, {
   prepareSettingsConfigOnce,
   WebGLOnlySettings,
 } from './settings-config';
-import { getFeedbackFormLink, getVersion } from './utils';
+import { getVersion, originalProjectLink, troubleshootLink } from './utils';
 import { storage } from './storage';
-import { AmbientlightError } from './errors/ambient-light-error';
 
 export const FRAMESYNC_DECODEDFRAMES = 0;
 export const FRAMESYNC_DISPLAYFRAMES = 1;
@@ -26,10 +25,7 @@ export const FRAMESYNC_VIDEOFRAMES = 2;
 export const DEBANDING_BLEND_MODE_LCD = 0;
 export const DEBANDING_BLEND_MODE_OLED = 1;
 
-const feedbackFormLink = getFeedbackFormLink(); // document.currentScript?.getAttribute('data-feedback-form-link')
-//  || 'https://docs.google.com/forms/d/e/1FAIpQLSe5lenJCbDFgJKwYuK_7U_s5wN3D78CEP5LYf2lghWwoE9IyA/viewform'
-const baseUrl = chrome.runtime.getURL('') || ''; // document.currentScript?.getAttribute('data-base-url') || ''
-const version = getVersion(); // document.currentScript?.getAttribute('data-version') || ''
+const version = getVersion();
 
 const getSettingQuerySelector = (name) =>
   `#setting-${name.replace(/\./g, '\\.')}`;
@@ -78,15 +74,15 @@ export default class Settings {
     const warningTimeout = setTimeout(
       () =>
         setWarning(
-          `It is taking more than 5 seconds to load your previous settings.
-If this is your first warning and it does not disappear, then the extension might have updated. 
-You can reload the webpage to complete the update.
+          `載入先前的設定已經超過 5 秒。
+如果這是第一次出現這個警告而且沒有消失，擴充功能可能剛更新過，
+重新整理網頁即可完成更新。
 
-But if this happens frequently, here are some possible causes:
-- Another extension is blocking code execution on this webpage for a long duration.
-  Disable other extensions temporarely to find out which one it is.
-- If your computer is very slow or frequently freezing in other applications as well,
-  there could be a problem with your hardware, likely the memory (DDR).`
+如果經常發生，可能的原因有：
+- 其他擴充功能長時間阻擋了這個網頁的程式執行。
+  暫時停用其他擴充功能來找出是哪一個。
+- 如果電腦很慢，或其他程式也經常卡住，
+  可能是硬體（通常是記憶體）有問題。`
         ),
       5000
     );
@@ -174,7 +170,7 @@ But if this happens frequently, here are some possible causes:
       storedSettings = await Settings.getStoredSettingsCached();
     } catch {
       this.setWarning(
-        'Your previous settings cannot be loaded because the extension could have been updated.\nRefresh the page to retry again.'
+        '無法載入先前的設定，擴充功能可能已經更新。\n請重新整理頁面再試一次。'
       );
     }
 
@@ -266,13 +262,11 @@ But if this happens frequently, here are some possible causes:
     let descriptionText = disabledText;
     if (this.webGLCrashDate) {
       descriptionText += `${
-        disabledText
-          ? '\r\nAnd the WebGL renderer previously failed'
-          : 'Failed to load'
-      } at ${this.webGLCrashDate.toLocaleTimeString()} ${this.webGLCrashDate.toLocaleDateString()}`;
-      descriptionText += `\r\n\r\nCheck the Hardware acceleration and WebGL settings in your browser or click on the link "troubleshoot performance problems" at the top of this menu to troubleshoot this problem.`;
+        disabledText ? '\r\n而且 WebGL 渲染器先前曾經失敗' : '載入失敗'
+      }，時間：${this.webGLCrashDate.toLocaleDateString()} ${this.webGLCrashDate.toLocaleTimeString()}`;
+      descriptionText += `\r\n\r\n請檢查瀏覽器的硬體加速與 WebGL 設定，或點擊選單最上方的「排解效能問題」連結。`;
       if (!disabledText)
-        descriptionText += `\r\n\r\nNote: You can re-enable this setting to try it again. In case the WebGL renderer fails again the time at which it failed will be updated.`;
+        descriptionText += `\r\n\r\n注意：你可以重新開啟此設定再試一次。如果 WebGL 渲染器再次失敗，上面的時間會更新。`;
     }
     descriptionElem.textContent = descriptionText;
   };
@@ -342,7 +336,7 @@ But if this happens frequently, here are some possible causes:
 
     const warningCloseButton = document.createElement('button');
     warningCloseButton.className = 'ytpa-warning-close-btn';
-    warningCloseButton.title = 'Close warning';
+    warningCloseButton.title = '關閉警告';
     warning.appendChild(warningCloseButton);
 
     const info = document.createElement('div');
@@ -372,18 +366,17 @@ But if this happens frequently, here are some possible causes:
     header1Content.className = 'ytp-menuitem-content';
     header1.appendChild(header1Content);
 
-    const troubleshootLink = document.createElement('a');
-    troubleshootLink.className = 'ytpa-feedback-link';
-    troubleshootLink.href =
-      'https://github.com/WesselKroos/youtube-ambilight/blob/master/TROUBLESHOOT.md';
-    troubleshootLink.target = '_blank';
-    troubleshootLink.rel = 'noopener';
-    header1Label.appendChild(troubleshootLink);
+    const troubleshootLinkElem = document.createElement('a');
+    troubleshootLinkElem.className = 'ytpa-feedback-link';
+    troubleshootLinkElem.href = troubleshootLink;
+    troubleshootLinkElem.target = '_blank';
+    troubleshootLinkElem.rel = 'noopener';
+    header1Label.appendChild(troubleshootLinkElem);
 
     const troubleshootLinkText = document.createElement('span');
     troubleshootLinkText.className = 'ytpa-feedback-link__text';
-    troubleshootLinkText.textContent = 'Troubleshoot performance problems';
-    troubleshootLink.appendChild(troubleshootLinkText);
+    troubleshootLinkText.textContent = '排解效能問題';
+    troubleshootLinkElem.appendChild(troubleshootLinkText);
 
     const toolbar = document.createElement('div');
     toolbar.className = 'ytpa-settings-toolbar';
@@ -396,15 +389,15 @@ But if this happens frequently, here are some possible causes:
 
     const importTooltip = document.createElement('span');
     importTooltip.className = 'ytpa-export-import-settings-btn__tooltip';
-    importTooltip.textContent = `How to export or import settings: 
-1. Click on the extension icon to open the option. 
-2. Scroll down to "Import / Export settings"`;
+    importTooltip.textContent = `如何匯出或匯入設定：
+1. 點擊擴充功能圖示開啟選項
+2. 捲動到「匯入／匯出設定」`;
     importBtn.appendChild(importTooltip);
 
     const resetBtn = document.createElement('button');
     resetBtn.className = 'ytpa-reset-settings-btn';
     resetBtn.type = 'button';
-    resetBtn.title = 'Reset all settings';
+    resetBtn.title = '重設所有設定';
     toolbar.appendChild(resetBtn);
 
     const header2 = document.createElement('div');
@@ -419,32 +412,18 @@ But if this happens frequently, here are some possible causes:
     header2Content.className = 'ytp-menuitem-content';
     header2.appendChild(header2Content);
 
-    const feedbackLink = document.createElement('a');
-    feedbackLink.className = 'ytpa-feedback-link';
-    feedbackLink.href = feedbackFormLink;
-    feedbackLink.target = '_blank';
-    feedbackLink.rel = 'noopener';
-    header2Label.appendChild(feedbackLink);
+    const originalProjectLinkElem = document.createElement('a');
+    originalProjectLinkElem.className = 'ytpa-feedback-link';
+    originalProjectLinkElem.href = originalProjectLink;
+    originalProjectLinkElem.target = '_blank';
+    originalProjectLinkElem.rel = 'noopener';
+    header2Label.appendChild(originalProjectLinkElem);
 
-    const feedbackLinkText = document.createElement('span');
-    feedbackLinkText.className = 'ytpa-feedback-link__text';
-    feedbackLinkText.textContent = 'Give feedback or a rating';
-    feedbackLink.appendChild(feedbackLinkText);
-
-    const donateLink = document.createElement('a');
-    donateLink.className = 'ytpa-donate-link';
-    donateLink.href = 'https://ko-fi.com/G2G59EK8L';
-    donateLink.target = '_blank';
-    donateLink.rel = 'noopener';
-    header2Content.appendChild(donateLink);
-
-    const donateLinkImage = document.createElement('img');
-    donateLinkImage.className = 'ytpa-donate-link__image';
-    donateLinkImage.alt = 'Support me via a donation';
-    donateLinkImage.title = 'Support me via a donation';
-    donateLinkImage.src = `${baseUrl}images/donate.svg`;
-    donateLinkImage.height = '23';
-    donateLink.appendChild(donateLinkImage);
+    const originalProjectLinkText = document.createElement('span');
+    originalProjectLinkText.className = 'ytpa-feedback-link__text';
+    originalProjectLinkText.textContent =
+      '改編自 Wessel Kroos 的 Ambient light for YouTube™';
+    originalProjectLinkElem.appendChild(originalProjectLinkText);
 
     let sectionContent;
 
@@ -469,7 +448,7 @@ But if this happens frequently, here are some possible causes:
         labelKey.contentEditable = true;
         labelKey.className = 'ytpa-menuitem-key';
         labelKey.title =
-          'Click here and press a key to change the hotkey\n(Or press the escape key to disable this hotkey)';
+          '點這裡再按下一個鍵來變更快捷鍵\n（或按 Esc 停用這個快捷鍵）';
         labelKey.textContent = setting.key;
         labelElems.push(labelKey);
 
@@ -539,9 +518,9 @@ But if this happens frequently, here are some possible causes:
         checkbox.ariaChecked = value ? 'true' : 'false';
         if (setting.disabled) {
           checkbox.ariaDisabled = 'true';
-          checkbox.title = 'This setting is unavailable';
+          checkbox.title = '無法使用此設定';
         } else {
-          checkbox.title = 'Right click to reset';
+          checkbox.title = '按右鍵恢復預設值';
           checkbox.tabindex = '0';
         }
         sectionContent.appendChild(checkbox);
@@ -611,7 +590,7 @@ But if this happens frequently, here are some possible causes:
           setting.snapPoints ? 'ytp-menuitem-range--has-snap-points' : ''
         }`;
         range.setAttribute('rowspan', '2');
-        range.title = 'Right click to reset';
+        range.title = '按右鍵恢復預設值';
         wrapper.appendChild(range);
 
         const input = document.createElement('input');
@@ -644,7 +623,7 @@ But if this happens frequently, here are some possible causes:
             option.className = `setting-range-datalist__label ${
               flip ? 'setting-range-datalist__label--flip' : ''
             }`;
-            option.title = `Set to ${hiddenLabel || label}`;
+            option.title = `設為${hiddenLabel || label}`;
             option.style.marginLeft = `${
               (value + -setting.min) * (100 / (setting.max - setting.min))
             }%`;
@@ -677,25 +656,18 @@ But if this happens frequently, here are some possible causes:
     this.settingsMenuBtnTooltipText = document.createElement('span');
     this.settingsMenuBtnTooltipText.className = 'ytp-tooltip-bottom-text';
     this.settingsMenuBtnTooltipText.appendChild(
-      document.createTextNode('Ambient light loading is paused.')
+      document.createTextNode('環境光暫停載入中。')
     );
     this.settingsMenuBtnTooltipText.appendChild(document.createElement('br'));
     this.settingsMenuBtnTooltipText.appendChild(
       document.createTextNode(
-        'Waiting for the video and page to be loaded first...'
+        '正在等待影片與網頁載入完成⋯'
       )
     );
     settingsMenuBtnTooltipTextWrapper.prepend(this.settingsMenuBtnTooltipText);
 
     this.menuBtn.prepend(settingsMenuBtnTooltip);
-    const ytSettingsBtn = document.querySelector(
-      'ytd-player [data-tooltip-target-id="ytp-autonav-toggle-button"]'
-    );
-    if (ytSettingsBtn) {
-      ytSettingsBtn.parentNode.insertBefore(this.menuBtn, ytSettingsBtn);
-    } else {
-      this.menuBtnParent.prepend(this.menuBtn);
-    }
+    this.attachMenuBtn();
     setDisplayErrorHandler(this.onError);
 
     this.menuElem = this.createMenuElement();
@@ -727,7 +699,7 @@ But if this happens frequently, here are some possible causes:
     on(resetSettingsBtnElem, 'click', async () => {
       if (
         !confirm(
-          'Are you sure you want to reset ALL the settings and reload the watch page?'
+          '確定要重設「所有」設定並重新載入頁面嗎？'
         )
       )
         return;
@@ -801,9 +773,10 @@ But if this happens frequently, here are some possible causes:
       });
     }
 
+    // Prevent the Bilibili player from reacting to (for example) clicks and scrolls in the menu
     on(
       this.menuElem,
-      'mousemove click dblclick contextmenu touchstart touchmove touchend',
+      'mousemove mousedown mouseup pointerdown pointerup click dblclick contextmenu wheel touchstart touchmove touchend',
       (e) => {
         e.stopPropagation();
       }
@@ -812,11 +785,9 @@ But if this happens frequently, here are some possible causes:
       e.preventDefault();
     });
 
-    this.menuElemParent.prepend(this.menuElem);
-
     this.bezelElem = this.createBezelElem();
     this.bezelTextElem = this.bezelElem.querySelector('text');
-    this.menuElemParent.prepend(this.bezelElem);
+    this.attachMenuElems();
 
     for (const setting of SettingsConfig) {
       const settingElem = this.menuElem.querySelector(
@@ -1100,7 +1071,6 @@ But if this happens frequently, here are some possible causes:
 
           if (
             [
-              'energySaver',
               'videoOverlayEnabled',
               'frameBlending',
               'fixedPosition',
@@ -1122,15 +1092,15 @@ But if this happens frequently, here are some possible causes:
               'directionBottomEnabled',
               'directionLeftEnabled',
               'advancedSettings',
-              'relatedScrollbar',
               'hideScrollbar',
+              'immersiveHeader',
               'immersiveTheaterView',
+              'transparentSidePanels',
+              'transparentSendingBar',
+              'transparentPageContent',
               'webGL',
-              'layoutPerformanceImprovements',
               'prioritizePageLoadSpeed',
               'enableInPictureInPicture',
-              'enableInEmbed',
-              'enableInVRVideos',
             ].some((name) => name === setting.name)
           ) {
             if (setting.name !== 'webGL') this.set(setting.name, value);
@@ -1197,20 +1167,7 @@ But if this happens frequently, here are some possible causes:
             this.ambientlight.toggleEnabled(value);
           }
 
-          if (
-            setting.name === 'layoutPerformanceImprovements' &&
-            this.enabled
-          ) {
-            this.ambientlight.updateLayoutPerformanceImprovements();
-          }
-
           const html = document.documentElement;
-          if (setting.name === 'relatedScrollbar' && this.enabled) {
-            if (value)
-              html.setAttribute('data-ambientlight-related-scrollbar', true);
-            else html.removeAttribute('data-ambientlight-related-scrollbar');
-          }
-
           if (setting.name === 'hideScrollbar' && this.enabled) {
             if (value)
               html.setAttribute('data-ambientlight-hide-scrollbar', true);
@@ -1239,14 +1196,6 @@ But if this happens frequently, here are some possible causes:
             this.ambientlight.sizesChanged = true;
             this.updateVisibility();
           }
-          if (['energySaver'].includes(setting.name)) {
-            if (value) {
-              this.ambientlight.calculateAverageVideoFramesDifference();
-            } else {
-              this.ambientlight.resetAverageVideoFramesDifference();
-            }
-          }
-
           if (
             [
               'videoOverlayEnabled',
@@ -1307,9 +1256,14 @@ But if this happens frequently, here are some possible causes:
           }
 
           if (
-            ['surroundingContentTextAndBtnOnly', 'fixedPosition'].some(
-              (name) => name === setting.name
-            )
+            [
+              'surroundingContentTextAndBtnOnly',
+              'fixedPosition',
+              'immersiveHeader',
+              'transparentSidePanels',
+              'transparentSendingBar',
+              'transparentPageContent',
+            ].some((name) => name === setting.name)
           ) {
             this.ambientlight.updateStyles();
             await this.ambientlight.optionalFrame(true);
@@ -1370,66 +1324,100 @@ But if this happens frequently, here are some possible causes:
   }
 
   createMenuButton() {
-    const elem = document.createElement('button');
-    elem.className = 'ytp-button ytp-ambientlight-settings-button is-loading';
+    const elem = document.createElement('div');
+    elem.className =
+      'bpx-player-ctrl-btn ytp-ambientlight-settings-button is-loading';
+    elem.setAttribute('role', 'button');
+    elem.setAttribute('tabindex', '0');
+    elem.setAttribute('aria-label', '環境光');
     elem.setAttribute('aria-owns', 'ytp-id-190');
 
+    const iconElem = document.createElement('div');
+    iconElem.className = 'bpx-player-ctrl-btn-icon';
+    elem.appendChild(iconElem);
+
+    const svgIconElem = document.createElement('span');
+    svgIconElem.className = 'bpx-common-svg-icon';
+    iconElem.appendChild(svgIconElem);
+
+    // A screen with rays of light around it
     const xmlns = 'http://www.w3.org/2000/svg';
-    const is2020PlayerUI = !!document.querySelector(
-      '.ytp-settings-button svg[viewBox="0 0 36 36"]'
-    );
-    const is2025PlayerUI = !!document.querySelector(
-      '.ytp-settings-button svg[viewBox="0 0 24 24"]'
-    );
-    if (!is2020PlayerUI && !is2025PlayerUI) {
-      const error = new AmbientlightError('Updated player (controls) UI');
-      const settingsMenuBtnParentSelector = [
-        '.html5-video-player .ytp-right-controls',
-        '.html5-video-player .ytp-chrome-controls > *:last-child',
-      ].join(', ');
-      error.details = {
-        controlsHTML: document.querySelector(settingsMenuBtnParentSelector)
-          ?.outerHTML,
-      };
-      SentryReporter.captureException(error);
-    }
-
     const svgElem = document.createElementNS(xmlns, 'svg');
-    svgElem.setAttributeNS(
-      null,
-      'viewBox',
-      is2025PlayerUI ? '0 0 24 24' : '0 0 36 36'
-    );
-    svgElem.setAttributeNS(null, 'height', is2025PlayerUI ? '24' : '100%');
-    svgElem.setAttributeNS(null, 'width', is2025PlayerUI ? '24' : '100%');
-    if (is2025PlayerUI) {
-      svgElem.setAttributeNS(null, 'version', '1.1');
-    } else {
-      svgElem.setAttributeNS(null, 'fill', 'none');
-    }
+    svgElem.setAttributeNS(null, 'viewBox', '0 0 22 22');
+    svgElem.setAttributeNS(null, 'width', '22');
+    svgElem.setAttributeNS(null, 'height', '22');
 
-    if (!is2025PlayerUI) {
-      const useElem = document.createElementNS(xmlns, 'use');
-      useElem.setAttributeNS(null, 'class', 'ytp-svg-shadow');
-      useElem.setAttributeNS(null, 'href', '#ytp-ambientlight-btn-icon');
-      svgElem.appendChild(useElem);
-    }
+    const screenElem = document.createElementNS(xmlns, 'rect');
+    screenElem.setAttributeNS(null, 'x', '5.5');
+    screenElem.setAttributeNS(null, 'y', '7');
+    screenElem.setAttributeNS(null, 'width', '11');
+    screenElem.setAttributeNS(null, 'height', '8');
+    screenElem.setAttributeNS(null, 'rx', '1.5');
+    screenElem.setAttributeNS(null, 'fill', 'none');
+    screenElem.setAttributeNS(null, 'stroke', 'currentColor');
+    screenElem.setAttributeNS(null, 'stroke-width', '1.8');
+    svgElem.appendChild(screenElem);
 
-    const pathElem = document.createElementNS(xmlns, 'path');
-    pathElem.setAttributeNS(null, 'id', 'ytp-ambientlight-btn-icon');
-    pathElem.setAttributeNS(null, 'fill', '#fff');
-    pathElem.setAttributeNS(
+    const raysElem = document.createElementNS(xmlns, 'path');
+    raysElem.setAttributeNS(
       null,
       'd',
-      is2025PlayerUI
-        ? 'M12.84 1H11.15C10.72 .99 10.30 1.14 9.95 1.40C9.60 1.66 9.35 2.02 9.23 2.44L9.19 2.61C9.11 3.00 8.96 3.38 8.73 3.71C8.51 4.04 8.22 4.33 7.89 4.55L7.75 4.64C7.37 4.85 6.96 4.98 6.53 5.02C6.11 5.06 5.68 5.01 5.27 4.87C4.86 4.73 4.42 4.73 4.00 4.86C3.59 5.00 3.23 5.26 2.99 5.62L2.89 5.77L2.05 7.23C1.82 7.63 1.73 8.10 1.81 8.55C1.88 9.01 2.12 9.43 2.47 9.73L2.58 9.84C3.15 10.39 3.50 11.15 3.50 12L3.49 12.16C3.47 12.56 3.37 12.95 3.19 13.31C3.01 13.67 2.77 13.99 2.47 14.26C2.12 14.56 1.88 14.98 1.81 15.43C1.73 15.89 1.82 16.36 2.05 16.76L2.89 18.22L2.99 18.37C3.24 18.73 3.59 18.99 4.01 19.13C4.42 19.26 4.86 19.26 5.27 19.12L5.42 19.07C5.81 18.96 6.21 18.93 6.61 18.98C7.01 19.03 7.40 19.15 7.75 19.36L7.89 19.44C8.22 19.66 8.51 19.95 8.73 20.28C8.96 20.61 9.11 20.99 9.19 21.38C9.28 21.84 9.52 22.24 9.88 22.54C10.24 22.83 10.69 23.00 11.15 23H12.84C13.30 23.00 13.75 22.83 14.11 22.54C14.47 22.24 14.71 21.84 14.80 21.38C14.89 20.96 15.06 20.56 15.31 20.21C15.55 19.86 15.88 19.57 16.25 19.36L16.39 19.28C16.75 19.10 17.14 18.99 17.54 18.96C17.94 18.94 18.34 18.99 18.72 19.12L18.89 19.17C19.31 19.27 19.75 19.24 20.15 19.07C20.55 18.90 20.88 18.60 21.10 18.23L21.95 16.76C22.18 16.36 22.26 15.89 22.19 15.43C22.11 14.98 21.88 14.56 21.53 14.26C21.23 13.99 20.98 13.67 20.80 13.31C20.63 12.95 20.52 12.56 20.50 12.16L20.50 12C20.50 11.57 20.59 11.14 20.77 10.75C20.94 10.36 21.20 10.01 21.53 9.73C21.88 9.43 22.11 9.01 22.19 8.55C22.26 8.10 22.18 7.63 21.95 7.23L21.10 5.76C20.88 5.39 20.55 5.09 20.15 4.92C19.76 4.75 19.31 4.72 18.89 4.82L18.72 4.87C18.34 5.00 17.94 5.05 17.54 5.03C17.14 5.00 16.75 4.89 16.4 4.71L16.25 4.63C15.88 4.42 15.56 4.13 15.31 3.78C15.06 3.43 14.89 3.03 14.80 2.61C14.71 2.15 14.47 1.74 14.11 1.45C13.75 1.16 13.30 .99 12.84 1ZM11.15 3H12.84C12.98 3.70 13.26 4.36 13.68 4.94C14.09 5.52 14.63 6.01 15.25 6.37C15.87 6.72 16.55 6.94 17.26 7.01C17.97 7.08 18.69 6.99 19.37 6.76L20.21 8.23C19.67 8.69 19.24 9.27 18.94 9.92C18.65 10.57 18.50 11.28 18.5 12C18.50 12.71 18.65 13.42 18.95 14.07C19.24 14.72 19.67 15.29 20.21 15.76L19.37 17.23C18.69 16.99 17.97 16.91 17.26 16.98C16.55 17.05 15.86 17.27 15.25 17.63C14.63 17.98 14.09 18.47 13.68 19.05C13.26 19.63 12.98 20.29 12.84 21H11.15C11.01 20.29 10.73 19.63 10.31 19.05C9.90 18.47 9.36 17.98 8.75 17.62C8.13 17.27 7.44 17.05 6.73 16.98C6.02 16.91 5.30 16.99 4.62 17.23L3.78 15.76C4.32 15.29 4.75 14.71 5.05 14.06C5.34 13.41 5.49 12.71 5.5 12C5.50 11.28 5.34 10.57 5.05 9.92C4.75 9.27 4.32 8.69 3.78 8.23L4.62 6.76C5.30 7.00 6.02 7.08 6.73 7.01C7.44 6.94 8.13 6.72 8.75 6.37C9.36 6.01 9.90 5.52 10.31 4.94C10.73 4.36 11.01 3.70 11.15 3ZM12.00 8C10.94 8 9.92 8.42 9.17 9.17C8.42 9.92 8.00 10.93 8.00 12C8.00 13.06 8.42 14.07 9.17 14.82C9.92 15.57 10.94 16 12.00 16C13.06 16 14.08 15.57 14.83 14.82C15.58 14.07 16.00 13.06 16.00 12C16.00 10.93 15.58 9.92 14.83 9.17C14.08 8.42 13.06 8 12.00 8ZM12.00 10H12L12.20 10.01C12.69 10.06 13.15 10.29 13.48 10.65C13.81 11.02 14.00 11.50 14 12L13.99 12.20C13.95 12.58 13.80 12.95 13.55 13.25C13.31 13.55 12.98 13.78 12.62 13.90C12.25 14.02 11.85 14.03 11.48 13.93C11.11 13.83 10.77 13.62 10.51 13.34C10.25 13.05 10.08 12.69 10.02 12.31C9.96 11.93 10.01 11.54 10.17 11.18C10.32 10.83 10.58 10.53 10.91 10.32C11.23 10.11 11.61 10.00 12 10'
-        : 'm 23.94,18.78 c .03,-0.25 .05,-0.51 .05,-0.78 0,-0.27 -0.02,-0.52 -0.05,-0.78 l 1.68,-1.32 c .15,-0.12 .19,-0.33 .09,-0.51 l -1.6,-2.76 c -0.09,-0.17 -0.31,-0.24 -0.48,-0.17 l -1.99,.8 c -0.41,-0.32 -0.86,-0.58 -1.35,-0.78 l -0.30,-2.12 c -0.02,-0.19 -0.19,-0.33 -0.39,-0.33 l -3.2,0 c -0.2,0 -0.36,.14 -0.39,.33 l -0.30,2.12 c -0.48,.2 -0.93,.47 -1.35,.78 l -1.99,-0.8 c -0.18,-0.07 -0.39,0 -0.48,.17 l -1.6,2.76 c -0.10,.17 -0.05,.39 .09,.51 l 1.68,1.32 c -0.03,.25 -0.05,.52 -0.05,.78 0,.26 .02,.52 .05,.78 l -1.68,1.32 c -0.15,.12 -0.19,.33 -0.09,.51 l 1.6,2.76 c .09,.17 .31,.24 .48,.17 l 1.99,-0.8 c .41,.32 .86,.58 1.35,.78 l .30,2.12 c .02,.19 .19,.33 .39,.33 l 3.2,0 c .2,0 .36,-0.14 .39,-0.33 l .30,-2.12 c .48,-0.2 .93,-0.47 1.35,-0.78 l 1.99,.8 c .18,.07 .39,0 .48,-0.17 l 1.6,-2.76 c .09,-0.17 .05,-0.39 -0.09,-0.51 l -1.68,-1.32 0,0 z m -5.94,2.01 c -1.54,0 -2.8,-1.25 -2.8,-2.8 0,-1.54 1.25,-2.8 2.8,-2.8 1.54,0 2.8,1.25 2.8,2.8 0,1.54 -1.25,2.8 -2.8,2.8 l 0,0 z'
+      'M11 1.5v2.5M11 18v2.5M1.5 11H3.5M18.5 11h2M3.8 3.8l1.6 1.6M16.6 16.6l1.6 1.6M18.2 3.8l-1.6 1.6M5.4 16.6l-1.6 1.6'
     );
+    raysElem.setAttributeNS(null, 'fill', 'none');
+    raysElem.setAttributeNS(null, 'stroke', 'currentColor');
+    raysElem.setAttributeNS(null, 'stroke-width', '1.8');
+    raysElem.setAttributeNS(null, 'stroke-linecap', 'round');
+    raysElem.classList.add('ytp-ambientlight-settings-button__rays');
+    svgElem.appendChild(raysElem);
 
-    svgElem.appendChild(pathElem);
-    elem.appendChild(svgElem);
+    svgIconElem.appendChild(svgElem);
+
+    on(elem, 'keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      elem.click();
+    });
 
     return elem;
+  }
+
+  // Places the button in the control bar of the player, next to the settings button of Bilibili
+  attachMenuBtn() {
+    if (!this.menuBtn || !this.menuBtnParent) return;
+
+    const playerSettingsBtn = this.menuBtnParent.querySelector(
+      ':scope > .bpx-player-ctrl-setting'
+    );
+    if (playerSettingsBtn) {
+      if (playerSettingsBtn.previousElementSibling === this.menuBtn) return;
+
+      this.menuBtnParent.insertBefore(this.menuBtn, playerSettingsBtn);
+    } else {
+      if (this.menuBtn.parentElement === this.menuBtnParent) return;
+
+      this.menuBtnParent.prepend(this.menuBtn);
+    }
+  }
+
+  attachMenuElems() {
+    if (!this.menuElemParent) return;
+
+    if (this.menuElem && this.menuElem.parentElement !== this.menuElemParent)
+      this.menuElemParent.prepend(this.menuElem);
+    if (this.bezelElem && this.bezelElem.parentElement !== this.menuElemParent)
+      this.menuElemParent.prepend(this.bezelElem);
+  }
+
+  // Called when Bilibili has replaced (a part of) the video player
+  attachToPlayer(menuBtnParent, menuElemParent) {
+    if (menuBtnParent) this.menuBtnParent = menuBtnParent;
+    if (menuElemParent) this.menuElemParent = menuElemParent;
+
+    this.attachMenuBtn();
+    this.attachMenuElems();
   }
 
   async updateBufferProjectorWebGLCtx() {
@@ -1488,21 +1476,21 @@ But if this happens frequently, here are some possible causes:
   }
 
   frameFadingValueToDuration(value) {
-    if (!value) return 'Off';
+    if (!value) return '關閉';
 
     const frames = Math.pow(value, 2);
     const seconds = frames / 30;
     if (seconds < 1) return `${Math.round(seconds * 1000)} ms`;
-    return `${Math.round(seconds * 10) / 10} seconds`;
+    return `${Math.round(seconds * 10) / 10} 秒`;
   }
 
   getSettingListDisplayText(setting) {
     const value = this[setting.name];
     if (setting.name === 'frameSync') {
       return {
-        [FRAMESYNC_DECODEDFRAMES]: 'Decoded framerate',
-        [FRAMESYNC_DISPLAYFRAMES]: 'Display framerate',
-        [FRAMESYNC_VIDEOFRAMES]: 'Video framerate',
+        [FRAMESYNC_DECODEDFRAMES]: '解碼影格率',
+        [FRAMESYNC_DISPLAYFRAMES]: '顯示器影格率',
+        [FRAMESYNC_VIDEOFRAMES]: '影片影格率',
       }[value];
     }
     if (setting.name === 'debandingBlendMode') {
@@ -1513,11 +1501,11 @@ But if this happens frequently, here are some possible causes:
     }
     if (setting.name === 'barSizeDetectionAverageHistorySize') {
       return this.barSizeDetectionAverageHistorySize == 1
-        ? `1 frame`
-        : `${value} frames`;
+        ? `1 個影格`
+        : `${value} 個影格`;
     }
     if (setting.name === 'framerateLimit') {
-      return this.framerateLimit == 0 ? 'max fps' : `${value} fps`;
+      return this.framerateLimit == 0 ? '不限制' : `${value} fps`;
     }
     if (setting.name === 'frameFading') {
       return this.frameFadingValueToDuration(value);
@@ -1622,7 +1610,7 @@ But if this happens frequently, here are some possible causes:
     if (!this.menuBtn.classList.contains('is-loading')) return;
 
     this.menuBtn.classList.remove('is-loading');
-    this.settingsMenuBtnTooltipText.textContent = 'Ambient light settings';
+    this.settingsMenuBtnTooltipText.textContent = '環境光設定';
 
     this.showUpdatesMessage();
   };
@@ -1631,9 +1619,9 @@ But if this happens frequently, here are some possible causes:
     const message = ex?.message ?? typeof ex;
     if (this.menuBtn?.classList?.contains?.('is-loading')) {
       this.menuBtn.classList.add('has-warning');
-      this.settingsMenuBtnTooltipText.textContent = `Ambient light failed to load:\n${message}`;
+      this.settingsMenuBtnTooltipText.textContent = `環境光載入失敗：\n${message}`;
     } else {
-      this.setWarning(`An error occured:\n${message}`, true);
+      this.setWarning(`發生錯誤：\n${message}`, true);
     }
   };
 
@@ -1729,10 +1717,6 @@ But if this happens frequently, here are some possible causes:
         this.ambientlight.enableChromiumBugDirectVideoOverlayWorkaround,
     },
     {
-      names: ['framerateLimit'],
-      visible: () => !this.ambientlight.isVrVideo,
-    },
-    {
       names: ['showBarDetectionStats'],
       visible: () =>
         this.detectHorizontalBarSizeEnabled ||
@@ -1779,7 +1763,7 @@ But if this happens frequently, here are some possible causes:
         valueElem.classList.add('is-controlled-by-setting');
         valueElem.setAttribute(
           'title',
-          `Controlled by the "${controlledByLabel}" setting.\nManually adjusting this setting will turn off "${controlledByLabel}"`
+          `由「${controlledByLabel}」設定控制。\n手動調整此設定會關閉「${controlledByLabel}」`
         );
       } else {
         valueElem.classList.remove('is-controlled-by-setting');
@@ -1998,20 +1982,20 @@ But if this happens frequently, here are some possible causes:
     } catch (ex) {
       if (ex.message.includes('QuotaExceededError')) {
         this.setWarning(
-          'The changes could not be saved because the settings have changed too often.\nWait a few seconds...'
+          '設定變更太頻繁，無法儲存。\n請稍候幾秒⋯'
         );
         return;
       }
 
       if (ex.message === 'uninstalled') {
         this.setWarning(
-          'The changes could not be saved because the extension has been updated.\nRefresh the webpage to reload the updated extension.'
+          '擴充功能已經更新，無法儲存變更。\n請重新整理網頁以載入更新後的擴充功能。'
         );
         return;
       }
 
       if (ex.message !== 'An unexpected error occurred')
-        SentryReporter.captureException(ex);
+        ErrorReporter.captureException(ex);
 
       this.logStorageWarningOnce(
         `Failed to save settings ${JSON.stringify(
@@ -2076,24 +2060,6 @@ But if this happens frequently, here are some possible causes:
     this.bezelElem.classList.add('ytal-bezel--no-animation');
   };
 
-  updateAverageVideoFramesDifferenceInfo = () => {
-    if (!this.menuElem) return;
-
-    let message = '';
-    if (this.energySaver) {
-      if (this.ambientlight.averageVideoFramesDifference < 0.002) {
-        message =
-          'Detected a still image as video\nThe framerate has been limited to: 0.2 fps\n\nLimited by the advanced setting:\nQuality > Save energy on static videos';
-      } else if (this.ambientlight.averageVideoFramesDifference < 0.0175) {
-        message =
-          'Detected only small movements in the video\nThe framerate has been limited to: 1 fps\n\nLimited by the advanced setting:\nQuality > Save energy on static videos';
-      }
-    }
-
-    this.infoElem.textContent = message;
-    this.infoItemElem.style.display = message ? '' : 'none';
-  };
-
   showUpdatesMessage = async () => {
     try {
       if (!version) return;
@@ -2113,10 +2079,10 @@ But if this happens frequently, here are some possible causes:
       this.updateItemElem.style.display = '';
       this.menuBtn.classList.toggle('has-updates', true);
       this.menuBtn.title =
-        "Ambient light has been updated with new settings\nClick to see what's new";
+        '環境光已更新並加入新設定\n點擊查看更新內容';
       this.showingUpdatesMessage = true;
     } catch (ex) {
-      SentryReporter.captureException(ex);
+      ErrorReporter.captureException(ex);
     }
   };
 
